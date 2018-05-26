@@ -1,5 +1,6 @@
 # cfs-reu
 **Author:** Nathan Fox
+
 **Contact:** nathanfox@miami.edu
 
 This work is from the Computing For Structure REU at the 
