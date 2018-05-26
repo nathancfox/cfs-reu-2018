@@ -3,8 +3,7 @@
 This file contains bulky waste pickup orders by customer account from Public works and Waste Management's Waste Collection System. Data include details about request including any assessed fees.
 ### Access Date
 05/24/2018
-### Dataset Details
-At time of access:
+### Dataset Details at time of access:
 
 **Data Last Updated:** 05/24/2018
 
