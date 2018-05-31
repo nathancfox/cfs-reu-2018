@@ -1,7 +1,10 @@
 # Bulky Waste Pickup Orders by Customer Account
 ### Description
-This file contains bulky waste pickup orders by customer account from Public works and Waste Management's Waste Collection System. Data include details about request including any assessed fees.
-### Access Date
+This folder contains the original source data for the MiamiDade BulkyWastePickupOrders 
+Analysis. The data file contains bulky waste pickup orders by customer account from 
+Public Works and Waste Management. Data include details about requests including
+any assessed fees.
+### Access Date:
 05/24/2018
 ### Dataset Details at time of access:
 
