@@ -1,6 +1,6 @@
 # Computing for Structure REU - Summer 2018
 
-**Author:** Nathan Fox
+**Author:** Nathan Fox - nathanfox@miami.edu
 
 **Initialized:** June 1, 2018
 
