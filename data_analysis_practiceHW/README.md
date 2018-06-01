@@ -17,6 +17,6 @@ being omitted from future presentation of the work.
 
 **Thanks to:**
 * Athena Hadjixenofontos
-* Kalen Dawson
+* Kalan Dawson
 * Burt Rosenberg
 
