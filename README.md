@@ -4,6 +4,7 @@
 **Initialized:** June 1, 2018
 
 **Mentors:**
+
     * Dr. Stefan Wuchty
     * Dr. Vance Lemmon
     * Hassen Dhrif
