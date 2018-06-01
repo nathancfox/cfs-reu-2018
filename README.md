@@ -1,22 +1,17 @@
-# cfs-reu
+# Computing for Structure REU - Summer 2018
+
 **Author:** Nathan Fox
+**Initialized:** June 1, 2018
 
-**Contact:** nathanfox@miami.edu
+**Mentors:**
+    * Dr. Stefan Wuchty
+    * Dr. Vance Lemmon
+    * Hassen Dhrif
 
-This work is from the Computing For Structure REU at the 
-University of Miami, Summer 2018.
-
-All data is stored in the datasets/ folder, but is not uploaded to this 
-GitHub account because of size restrictions. The original source of the 
-data can be found in the datasets/README.md and a copy of the data as it 
-existed at the time of analysis can be requested from the author. The analysis 
-is found in a Jupyter Notebook entitled MiamiDade_BulkyWastePickupOrders_Analysis.ipynb. 
-This analysis is a work in progress and shows the actual narrative thought process. 
-As such, it is not designed for presentation and includes content that may end up 
-being omitted from future presentation of the work.
-
-**Thanks to:**
-* Athena Hadjixenofontos
-* Kalen Dawson
-* Burt Rosenberg
-
+This project explores the use of a modified Particle Swarm Optimization (PSO)
+algorithm called COMB-PSO (Combined Continuous and Binary Particle Swarm
+Optimization) on kinase inhibitor data. COMB-PSO is designed for feature
+selection to use as input for a machine learning algorithm. In this case,
+the feature subset selected by COMB-PSO will be fed to a classifer that labels
+a kinase inhibitor as axon-growth inducing or not axon-growth inducing, based
+on phenotypic assay data and in vitro kinase inhibition profiles.
