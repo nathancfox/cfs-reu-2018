@@ -1,6 +1,7 @@
 # Computing for Structure REU - Summer 2018
 
 **Author:** Nathan Fox
+
 **Initialized:** June 1, 2018
 
 **Mentors:**
