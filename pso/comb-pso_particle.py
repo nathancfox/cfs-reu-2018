@@ -3,27 +3,77 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 1, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 5, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
-# TODO: Add clipping, double check on random selection intervals
+# TODO (nathanfox@miami.edu): Add clipping, 
 # see about saving seeds/random number progression, check inertia equation
-# typo, write a sigmoid function, generally finish and check against paper.
+# type, generally finish and check against paper.
 
 import numpy as np
+from scipy.special import expit
 
 class COMB_Particle:
+
+    """COMB-Particle Swarm Optimization (COMB-PSO) Particle.
+
+    COMB_Particle is an implementation of a particle object in
+    Combined-Particle Swarm Optimization (COMB-PSO). It is designed to be
+    used by a larger swarm class or swarm program.
+
+    Attributes
+    ----------
+    x : 1-Dimensional ndarray; Holds the current particle position.
+    
+    v : 1-Dimensional ndarray; Holds the current particle velocity.
+
+    b : 1-Dimensional ndarray; Holds the current binary position.
+
+    pbest : 1-Dimensional ndarray; Holds the particle's best position to date.
+
+    w : float; inertia coefficient.
+    
+    c1 : float; acceleration constant 1, for the cognitive component.
+
+    c2 : float; acceleration constant 2, for the social component.
+
+    c3 : float; acceleration constant 3, for the diversity component.
+
+    ndim : integer; number of dimensions in the search space; also the size
+           of x, v, b, and pbest.
+
+    x_bounds : float tuple; size 2; Holds upper/lower bounds for elements in x.
+
+    v_bounds : float tuple; size 2; Holds upper/lower bounds for elements in v.
+
+    w_bounds : float tuple; size 2; Holds upper/lower bounds for w.
+
+   
+    Functions
+    ---------
+    __init__ : Initializes a COMB_PSO object and assigns all attributes.
+
+    update_position : Updates position based on velocity.
+
+    update_velocity : Updates velocity based on the COMB-PSO velocity equation.
+
+    initialize_position : Randomly initializes position.
+
+    initialize_velocity : Randomly initializes velocity.
+
+    update_binary_position : Updates binary position by converting current x.
+
+    update_inertia : Updates inertia based on time.
+    """
+
     def __init__(self, w, c1, c2, c3, ndim, x_bounds, v_bounds, w_bounds):
         """Initialize the COMB_Particle object.
 
-        Initializes a COMB_Particle object. The new COMB_Particle gets a copy
-        of the class variable, var_template, as an instance variable, var. This
-        allows readers to see the expected structure of the dict holding
-        the COMB_Particle state variables, but avoids mutating it for all
-        instances of the class. The new COMB_Particle then randomly
-        initializes its position and velocity vectors and assigns the inertia,
-        c1, c2, and c3 variables.
+        Initializes a COMB_Particle object. The new COMB_Particle then randomly
+        initializes its position, binary position, velocity, and pbest vectors,
+        then assigns the inertia, c1, c2, c3 variables and the respective
+        bounds.
 
         Parameters
         ----------
@@ -39,7 +89,8 @@ class COMB_Particle:
                Also the length of the position and velocity vectors.
 
         x_bounds : tuple of floats, size 2, x_bounds[0] is the minimum value
-                   that an element of x can hold.
+                   that an element of x can hold; x_bounds[1] is the maximum
+                   value that an element of x can hold.
 
         v_bounds : tuple of floats, size 2, v_bounds[0] is the minimum value
                    that an element of v can hold; v_bounds[1] is the maximum
@@ -57,11 +108,13 @@ class COMB_Particle:
         ------
         None
         """
-        self.var = var_template.copy()
+        self.x = np.zeros(ndim)
+        self.v = np.zeros(ndim)
         self.randomize_position(ndim)
-        self.b = np.zeros(ndim)
-        self.update_binary_position()
         self.randomize_velocity(ndim)
+        self.b = np.zeros(ndim, dtype=np.int8)
+        self.update_binary_position()
+        self.pbest = x.copy()
         self.w = w
         self.c1 = c1
         self.c2 = c2
@@ -92,14 +145,17 @@ class COMB_Particle:
         None
         """
         self.x = self.x * self.v
+        # Clipping position if outside bounds
+        self.x[self.x < self.x_bounds[0]] = self.x_bounds[0]
+        self.x[self.x > self.x_bounds[1]] = self.x_bounds[1]
 
     def update_velocity(self, gbest, abest):
         """Update the velocity vector for one time step.
 
         Updates the velocity vector for a single time step, according
-        to the PSO velocity equation. The equation terms, in order, represent
-        the inertia component, the cognitive component, and the social
-        component.
+        to the COMB-PSO velocity equation. The equation terms, in order,
+        represent the inertia component, the cognitive component, the
+        social component, and the diversity component.
 
         NOTE: The velocity vector must be updated BEFORE the position vector.
 
@@ -124,22 +180,25 @@ class COMB_Particle:
         # random values if necessary. Or record a seed at the beginning.
         self.v = (
                    (self.w*self.v)
-                 + (self.c1*np.random.uniform()*(self.pbest-self.x))
-                 + (self.c2*np.random.uniform()*(gbest-self.x))
-                 + (self.c3*np.random.uniform()*(abest-self.x))
+                 + (self.c1*np.random.uniform(size=self.ndim)*(self.pbest-self.x))
+                 + (self.c2*np.random.uniform(size=self.ndim)*(gbest-self.x))
+                 + (self.c3*np.random.uniform(size=self.ndim)*(abest-self.x))
                  )
+        # Clipping velocity if outside bounds
+        self.v[self.v < self.v_bounds[0]] = self.v_bounds[0]
+        self.v[self.v > self.v_bounds[1]] = self.v_bounds[1]
 
-    def initialize_position(self, ndim):
-        """Initialize the position vector, var['x'].
+    def initialize_position(self):
+        """Initialize the position vector, x.
 
         Randomizes the initial position vector of the Particle. Typically used
-        for Particle initialization at the beginning of a PSO search.
+        for Particle initialization at the beginning of a PSO search. Expects
+        the position vector to already have the correct length.
 
         Parameters
         ----------
-        ndim : integer, position vector length, or the number of dimensions
-               or features in the search space.
-           
+        None
+
         Returns
         -------
         None
@@ -148,19 +207,23 @@ class COMB_Particle:
         ------
         None
         """
-        pass
+        # This implementation cannot start at the upper bound,
+        # Not sure if that's a problem
+        x = np.random.uniform(low=self.x_bounds[0],
+                              high=self.x_bounds[1],
+                              size=self.ndim)
     
     def initialize_velocity(self, ndim):
-        """Initialize the velocity vector, var['v'].
+        """Initialize the velocity vector, v.
 
         Randomizes the initial velocity vector of the Particle. Typically used
-        for Particle initialization at the beginning of a PSO search.
+        for Particle initialization at the beginning of a PSO search. Expects
+        the velocity vector to already have the correct length.
 
         Parameters
         ----------
-        ndim : integer, velocity vector length, or the number of dimensions
-               or features in the search space.
-           
+        None
+
         Returns
         -------
         None
@@ -169,20 +232,19 @@ class COMB_Particle:
         ------
         None
         """
-        pass
+        # This implementation cannot start at the upper bound,
+        # Not sure if that's a problem
+        v = np.random.uniform(low=self.v_bounds[0],
+                              high=self.v_bounds[1],
+                              size=self.ndim)
 
-    def sigmoid(self, x_i):
-        # Some sigmoid conversion function to be used in
-        # update_binary_position().
-        pass
     def update_binary_position(self):
         """Convert continuous position vector to binary position vector.
 
-        Updates the binary position vector by using a sigmoid function,
-        defined internally, to convert a continuous position vector, x,
-        into a binary position vector, b. This allows the particle to
-        explore a continuous space, but still report a position as a subset
-        of features.
+        Updates the binary position vector by using a logistic function
+        to convert a continuous position vector, x, into a binary position
+        vector, b. This allows the particle to explore a continuous space,
+        but still report a position as a subset of features.
 
         Parameters
         ----------
@@ -198,13 +260,21 @@ class COMB_Particle:
         """
         # NOTE: Remember to come back and make sure that you're recording the
         # random values if necessary. Or record a seed at the beginning.
-        for i in range(ndim):
-            if np.random.uniform() < sigmoid(self.x[i]):
-                self.b[i] = 1
-            else:
-                self.b[i] = 0
+
+        # Use if random numbers need to be saved
+        # rand_compar = np.random.uniform(size=self.ndim)
+        # Save rand_compar to file
+        # self.b = (self.x < rand_compar).astype(int)
+        
+        # Use if random numbers do Not need to be saved
+        self.b = (self.x < np.random.uniform(size=self.ndim)).astype(int)
 
     def update_inertia(self, t, t_max):
+        """Update inertia according to a time-dependent decreasing model.
+
+        Decreases inertia based on time. A time-dependent decreasing inertia
+        has been shown to exhibit better performance over a fixed inertia.
+        """
         # NOTE: Potential typo in the paper, unsure if the important ratio
         # is supposed to be t/t_max or v/v_max. Update after checking with
         # Hassen.
@@ -212,6 +282,12 @@ class COMB_Particle:
         # self.w = w_bounds[1] - ((t / t_max) * (w_bounds[1]-w_bounds[0]))
         pass
     def evaluate_fitness(self, classifier, classifier_args):
+        # NOTE: Upon further reflection, I think this does not belong
+        # in this class. evaluate_fitness should be a method in the swarm
+        # level that takes a COMB_Particle.x as an argument. That fitness
+        # function may then itself outsource the classification accuracy
+        # test to another function before incorporating it into the
+        # Fitness Function.
         """Evaluate the fitness of the current position vector.
 
         Evaluates the fitness of the current position vector or feature
