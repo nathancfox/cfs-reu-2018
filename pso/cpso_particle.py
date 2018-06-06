@@ -3,13 +3,13 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 5, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 6, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
-# TODO (nathanfox@miami.edu): Add clipping, 
-# see about saving seeds/random number progression, check inertia equation
-# type, generally finish and check against paper.
+# TODO (nathanfox@miami.edu): See about saving seeds/random number progression,
+# check inertia equation (maybe add in a t_bounds attribute?), proofread,
+# and write test cases.
 
 import numpy as np
 from scipy.special import expit
@@ -52,7 +52,7 @@ class COMB_Particle:
    
     Functions
     ---------
-    __init__ : Initializes a COMB_PSO object and assigns all attributes.
+    __init__ : Initializes a COMB_Particle object and assigns all attributes.
 
     update_position : Updates position based on velocity.
 
@@ -209,9 +209,9 @@ class COMB_Particle:
         """
         # This implementation cannot start at the upper bound,
         # Not sure if that's a problem
-        x = np.random.uniform(low=self.x_bounds[0],
-                              high=self.x_bounds[1],
-                              size=self.ndim)
+        self.x = np.random.uniform(low=self.x_bounds[0],
+                                   high=self.x_bounds[1],
+                                   size=self.ndim)
     
     def initialize_velocity(self, ndim):
         """Initialize the velocity vector, v.
@@ -280,49 +280,4 @@ class COMB_Particle:
         # Hassen.
         # 
         # self.w = w_bounds[1] - ((t / t_max) * (w_bounds[1]-w_bounds[0]))
-        pass
-    def evaluate_fitness(self, classifier, classifier_args):
-        # NOTE: Upon further reflection, I think this does not belong
-        # in this class. evaluate_fitness should be a method in the swarm
-        # level that takes a COMB_Particle.x as an argument. That fitness
-        # function may then itself outsource the classification accuracy
-        # test to another function before incorporating it into the
-        # Fitness Function.
-        """Evaluate the fitness of the current position vector.
-
-        Evaluates the fitness of the current position vector or feature
-        subset by using the current position vector to train a classifier.
-
-        Fitness Function:
-
-        f(X, y, b, alpha) = alpha * Pb + (1-alpha) * (|X|-|b|)/|X|
-
-        where X is the set of all features,
-              y is the set of class label values,
-              b is the subset of features selected
-              alpha is a weight factor that denotes importance to size of the
-                    subset and accuracy of the classifier
-              Pb is the classification performance given only b (decoded by y
-                 and the position vector)
-              |X| is the number of features (size of position vector)
-              |b| is the number of features in b
-
-        Parameters
-        ----------
-        classifier : object, classifier to be trained on the current position.
-
-        classifier_args : list, additional arguments for classifier
-
-        Returns
-        -------
-        f : the value of the fitness function with the given parameters
-
-        Raises
-        ------
-        None
-        """
-        # Decode self.x to a feature subset
-        # 10-fold cross validation on data using classifier and feature subset
-        # Return classification performance
-        # Calculate fitness using classification performance
-        pass
+        pass 
