@@ -8,8 +8,7 @@
 #------------------------------------------------------------------------------+
 
 # TODO (nathanfox@miami.edu): See about saving seeds/random number progression,
-# check inertia equation (maybe add in a t_bounds attribute?), proofread,
-# and write test cases.
+# update the docstrings, proofread, and write test cases.
 
 import numpy as np
 from scipy.special import expit
@@ -67,18 +66,19 @@ class COMB_Particle:
     update_inertia : Updates inertia based on time.
     """
 
-    def __init__(self, w, c1, c2, c3, ndim, x_bounds, v_bounds, w_bounds):
+    def __init__(self, c1, c2, c3, ndim, x_bounds, v_bounds, w_bounds):
         """Initialize the COMB_Particle object.
 
         Initializes a COMB_Particle object. The new COMB_Particle then randomly
         initializes its position, binary position, velocity, and pbest vectors,
         then assigns the inertia, c1, c2, c3 variables and the respective
         bounds.
+        
+        NOTE: p_fitness must be initialized in the swarm class because
+        of a readability-based design decision.
 
         Parameters
         ----------
-        w : float, positive inertia weight.
-
         c1 : float, acceleration coefficient for the cognitive component.
 
         c2 : float, acceleration coefficient for the social component.
@@ -89,16 +89,12 @@ class COMB_Particle:
                Also the length of the position and velocity vectors.
 
         x_bounds : tuple of floats, size 2, x_bounds[0] is the minimum value
-                   that an element of x can hold; x_bounds[1] is the maximum
-                   value that an element of x can hold.
+                   that an element of x can be; x_bounds[1] is the maximum
+                   value that an element of x can be.
 
         v_bounds : tuple of floats, size 2, v_bounds[0] is the minimum value
-                   that an element of v can hold; v_bounds[1] is the maximum
-                   value that an element of v can hold.
-
-        w_bounds : tuple of floats, size 2, w_bounds[0] is the minimum value
-                   that w can be; w_bounds[1] is the maximum value that w
-                   can be.
+                   that an element of v can be; v_bounds[1] is the maximum
+                   value that an element of v can be.
 
         Returns
         -------
@@ -115,14 +111,13 @@ class COMB_Particle:
         self.b = np.zeros(ndim, dtype=np.int8)
         self.update_binary_position()
         self.pbest = x.copy()
-        self.w = w
+        self.p_fitness = 0.0
         self.c1 = c1
         self.c2 = c2
         self.c3 = c3
         self.ndim = ndim
         self.x_bounds = x_bounds
         self.v_bounds = v_bounds
-        self.w_bounds = w_bounds
         
     def update_position(self):
         """Update the position vector for one time step.
@@ -149,7 +144,7 @@ class COMB_Particle:
         self.x[self.x < self.x_bounds[0]] = self.x_bounds[0]
         self.x[self.x > self.x_bounds[1]] = self.x_bounds[1]
 
-    def update_velocity(self, gbest, abest):
+    def update_velocity(self, w, gbest, abest):
         """Update the velocity vector for one time step.
 
         Updates the velocity vector for a single time step, according
@@ -161,6 +156,8 @@ class COMB_Particle:
 
         Parameters
         ----------
+        w : float, inertia coefficient.
+        
         gbest : ndarray, shape: (ndim,), the best position vector found by
                 any Particle so far.
 
@@ -179,7 +176,7 @@ class COMB_Particle:
         # NOTE: Remember to come back and make sure that you're recording the
         # random values if necessary. Or record a seed at the beginning.
         self.v = (
-                   (self.w*self.v)
+                   (w*self.v)
                  + (self.c1*np.random.uniform(size=self.ndim)*(self.pbest-self.x))
                  + (self.c2*np.random.uniform(size=self.ndim)*(gbest-self.x))
                  + (self.c3*np.random.uniform(size=self.ndim)*(abest-self.x))
@@ -269,15 +266,4 @@ class COMB_Particle:
         # Use if random numbers do Not need to be saved
         self.b = (self.x < np.random.uniform(size=self.ndim)).astype(int)
 
-    def update_inertia(self, t, t_max):
-        """Update inertia according to a time-dependent decreasing model.
-
-        Decreases inertia based on time. A time-dependent decreasing inertia
-        has been shown to exhibit better performance over a fixed inertia.
-        """
-        # NOTE: Potential typo in the paper, unsure if the important ratio
-        # is supposed to be t/t_max or v/v_max. Update after checking with
-        # Hassen.
-        # 
-        # self.w = w_bounds[1] - ((t / t_max) * (w_bounds[1]-w_bounds[0]))
-        pass 
+    
