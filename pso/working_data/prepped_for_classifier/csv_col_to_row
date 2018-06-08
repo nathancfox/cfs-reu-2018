@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Expects a text file where each row contains a single value.
+# Converts the file to be all on one row, separated by
+# commas and ended by a single newline character.
+
+cat $1 | tr '\n' ',' > temp.out
+sed '$ s/.$/\n/' temp.out > $1
+rm temp.out
+
