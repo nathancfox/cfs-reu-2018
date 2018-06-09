@@ -3,7 +3,7 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 8, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 9, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
@@ -27,7 +27,8 @@ class COMB_Particle:
     
     v : 1-Dimensional ndarray; Holds the current particle velocity.
 
-    b : 1-Dimensional ndarray; Holds the current binary position.
+    b : 1-Dimensional ndarray; Holds the current binary position as
+        an array of booleans.
 
     pbest : 1-Dimensional ndarray; Holds the particle's best position to date.
 
@@ -272,13 +273,13 @@ class COMB_Particle:
         Converts any continuous position vector to a binary position
         vector according to the following formula.
 
-                 { 1, if rand() < S(x[i,j])  
+                 { True, if rand() < S(x[i,j])  
         b[i,j] = {
-                 { 0, otherwise
+                 { False, otherwise
 
         where b is the binary position vector, b[i] is the binary position
-        vector of particle i, b[i, j] is a feature (1 for inclusion,
-        0 for exclusion) in b[i], rand() is a uniform random
+        vector of particle i, b[i, j] is a feature (True for inclusion,
+        False for exclusion) in b[i], rand() is a uniform random
         number ϵ [0.0, 1.0), S is a logistic transformation, x is the
         continuous position vector, and x[i]/x[i,j] are analogous to
         b[i]/b[i,j].
@@ -289,13 +290,14 @@ class COMB_Particle:
 
         Returns
         -------
-        None
+        binary : ndarray, size ndim; boolean ndarray that holds the
+                 binary version of x, a continuous position vector.
 
         Raises
         ------
         None
         """
-        return (np.random.uniform(size=x.size) < expit(x)).astype(int)
+        return (np.random.uniform(size=x.size) < expit(x))
 
     def update_inertia(self, gbinary):
         """Update inertia coefficient, w.
