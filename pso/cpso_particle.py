@@ -32,8 +32,8 @@ class COMB_Particle:
 
     pbest : 1-Dimensional ndarray; Holds the particle's best position to date.
 
-    pbinary : 1-Dimensional ndarray, size ndim; Holds the binary global
-              best position.
+    pbinary : 1-Dimensional ndarray, size ndim; Holds the binary best position 
+              converted from pbest as a list of booleans.
 
     p_fitness : float; the fitness value returned by COMB_Swarm.eval_fitness
                 for the current pbest.

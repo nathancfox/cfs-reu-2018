@@ -60,7 +60,7 @@ class COMB_Swarm:
                     shuffle_gbest is called.
 
     gbinary : 1-Dimensional ndarray, size ndim; Holds the binary global
-              best position.
+              best position as a list of booleans.
 
     abest : 1-Dimensional ndarray, size ndim; Holds the archived best
             position found by any particle in the swarm, even if the global
@@ -70,7 +70,7 @@ class COMB_Swarm:
                 current abest.
 
     abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
-              best position.
+              best position as a list of booleans.
 
     t : integer; current time.
 
@@ -498,7 +498,3 @@ class COMB_Swarm:
                )
             )
         return f
-    
-
-
-
