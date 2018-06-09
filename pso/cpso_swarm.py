@@ -3,11 +3,11 @@
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
-# Date Modified: June 8, 2018, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 9, 2018, by Nathan Fox <nathanfox@miami.edu>
 #
 #-----------------------------------------------------------------------------+
 
-# TODO: Fix test_classify, update docstrings, proofread, and write test cases.
+# TODO: Update docstrings, proofread, and write test cases.
 #       Also make sure my imports are correct.
 #
 # Evolutionary Functionality: 
@@ -397,13 +397,13 @@ class COMB_Swarm:
         Converts any continuous position vector to a binary position
         vector according to the following formula.
 
-                 { 1, if rand() < S(x[i,j])  
+                 { True, if rand() < S(x[i,j])  
         b[i,j] = {
-                 { 0, otherwise
+                 { False, otherwise
 
         where b is the binary position vector, b[i] is the binary position
-        vector of particle i, b[i, j] is a feature (1 for inclusion,
-        0 for exclusion) in b[i], rand() is a uniform random
+        vector of particle i, b[i, j] is a feature (True for inclusion,
+        False for exclusion) in b[i], rand() is a uniform random
         number ϵ [0.0, 1.0), S is a logistic transformation, x is the
         continuous position vector, and x[i]/x[i,j] are analogous to
         b[i]/b[i,j].
@@ -414,13 +414,14 @@ class COMB_Swarm:
 
         Returns
         -------
-        None
+        binary : ndarray, size ndim; boolean ndarray that holds the
+                 binary version of x, a continuous position vector.
 
         Raises
         ------
         None
         """
-        return (np.random.uniform(size=x.size) < expit(x)).astype(int)
+        return (np.random.uniform(size=x.size) < expit(x))
 
     def test_classify(self, b):
         """Return a classification performance for a binary position vector.
@@ -449,9 +450,8 @@ class COMB_Swarm:
         ------
         None
         """
-        # BROKEN: It currently uses the entire data set, need to add functionality
-        # so that it only uses the features listed in b.
-        scores = cross_val_score(self.clf, self.X_train, self.y_train, cv=10)
+        scores = cross_val_score(self.clf, self.X_train[:, b],
+                                 self.y_train, cv=10)
         return scores.mean()
         
     def eval_fitness(self, b):
