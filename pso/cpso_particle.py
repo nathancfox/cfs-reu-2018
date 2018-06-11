@@ -3,12 +3,11 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 9, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 11, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
-# TODO (nathanfox@miami.edu): update the docstrings, proofread, and write
-#      test cases. Also make sure my imports are correct.
+# TODO (nathanfox@miami.edu): update the docstrings.
 
 import numpy as np
 from scipy.special import expit
