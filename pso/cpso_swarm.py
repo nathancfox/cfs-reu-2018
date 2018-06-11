@@ -235,6 +235,7 @@ class COMB_Swarm:
         self.v_bounds = v_bounds
         self.w_bounds = w_bounds
         self.t_bounds = t_bounds
+        self.all_false = 0
         # Placeholders
         self.gbest = np.zeros(self.ndim)
         self.gbest_counter = 0
@@ -502,6 +503,9 @@ class COMB_Swarm:
         ------
         None
         """
+        if np.count_nonzero(b) == 0:
+            self.all_false += 1
+            return 0 
         # clf_perf is the same as Pb in the above equation
         clf_perf = self.test_classify(b)
         f = ((self.alpha*clf_perf)
