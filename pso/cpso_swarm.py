@@ -186,6 +186,9 @@ class COMB_Swarm:
                 factor to fitness. If alpha = 0.0, minimizing the number
                 of features is the only contributing factor to fitness.
 
+        test_size : float, ϵ [0.0, 1.0]; designates the portion of the data
+                    to be reserved for final testing.
+
         x_bounds : tuple of floats, size 2; x_bounds[0] is the minimum value
                    that an element of COMB_Particle.x can be; x_bounds[1]
                    is the maximum value that an element of COMB_Particle.x
@@ -337,9 +340,9 @@ class COMB_Swarm:
         ------
         None
         """
-        for i in range(1, t_bounds[1]):
+        for i in range(1, self.t_bounds[1]):
             self.t = i
-            for p in swarm:
+            for p in self.swarm:
                 p.update_inertia(self.gbinary)
                 p.update_velocity(self.gbest, self.abest)
                 p.update_position()
@@ -460,7 +463,7 @@ class COMB_Swarm:
         None
         """
         scores = cross_val_score(self.clf, self.X_train[:, b],
-                                 self.y_train, cv=10)
+                                 y=self.y_train, cv=10)
         return scores.mean()
         
     def eval_fitness(self, b):
@@ -500,7 +503,7 @@ class COMB_Swarm:
         None
         """
         # clf_perf is the same as Pb in the above equation
-        clf_perf = test_classify(b)
+        clf_perf = self.test_classify(b)
         f = ((self.alpha*clf_perf)
              + (   (1-self.alpha)
                  * ((self.ndim-np.count_nonzero(b)) / self.ndim)
