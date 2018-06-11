@@ -3,11 +3,11 @@
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
-# Date Modified: June 8, 2018, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 9, 2018, by Nathan Fox <nathanfox@miami.edu>
 #
 #-----------------------------------------------------------------------------+
 
-# TODO: Fix test_classify, update docstrings, proofread, and write test cases.
+# TODO: Update docstrings, proofread, and write test cases.
 #       Also make sure my imports are correct.
 #
 # Evolutionary Functionality: 
@@ -60,7 +60,7 @@ class COMB_Swarm:
                     shuffle_gbest is called.
 
     gbinary : 1-Dimensional ndarray, size ndim; Holds the binary global
-              best position.
+              best position as a list of booleans.
 
     abest : 1-Dimensional ndarray, size ndim; Holds the archived best
             position found by any particle in the swarm, even if the global
@@ -70,7 +70,7 @@ class COMB_Swarm:
                 current abest.
 
     abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
-              best position.
+              best position as a list of booleans.
 
     t : integer; current time.
 
@@ -128,6 +128,11 @@ class COMB_Swarm:
     y_test : 1-Dimensional ndarray, size test_size*number_of_data_points;
              correct classifications of X_test to be used for final evaluation.
 
+    final_scores : n-Dimensional ndarray, size K where K-Fold Cross Validation
+                   is being used for evaluation. Used to hold the CV scores
+                   from the reserved test data that was unused during 
+                   COMB-PSO.
+
     Functions
     ---------
     __init__ : Initializes a COMB_Swarm object and assigns all attributes.
@@ -145,6 +150,8 @@ class COMB_Swarm:
     test_classify : Returns classification performance for a given position.
 
     eval_fitness : Evaluates the fitness function for a position vector.
+
+    final_eval : Runs a final classification evaluation on reserved test data.
     """
     
     def __init__(self, npart, c1, c2, c3, ndim, alpha, test_size,
@@ -178,6 +185,9 @@ class COMB_Swarm:
                 = 1.0, classification performance is the only contributing
                 factor to fitness. If alpha = 0.0, minimizing the number
                 of features is the only contributing factor to fitness.
+
+        test_size : float, ϵ [0.0, 1.0]; designates the portion of the data
+                    to be reserved for final testing.
 
         x_bounds : tuple of floats, size 2; x_bounds[0] is the minimum value
                    that an element of COMB_Particle.x can be; x_bounds[1]
@@ -225,6 +235,7 @@ class COMB_Swarm:
         self.v_bounds = v_bounds
         self.w_bounds = w_bounds
         self.t_bounds = t_bounds
+        self.all_false = 0
         # Placeholders
         self.gbest = np.zeros(self.ndim)
         self.gbest_counter = 0
@@ -242,6 +253,7 @@ class COMB_Swarm:
         (self.X_train, self.X_test,
          self.y_train, self.y_test) = train_test_split(self.data, self.target,
                                                        test_size=self.test_size)
+        self.final_scores = np.zeros(10)
 
     def initialize_particles(self):
         """Initialize the particles that comprise the swarm.
@@ -250,6 +262,13 @@ class COMB_Swarm:
         Separated particle initialization from the __init__ function
         because of a high computational time cost. Wrapper scripts using
         the COMB_Swarm class should manually initialize the particles.
+
+        NOTE: The inertia coefficient, w, is not initialized here because
+              it is updated based on gbinary as the very first thing in
+              the actual run of the algorithm in execute_search. It is
+              only initialized as a placeholder, 0.0 in the particle
+              __init__. If you use these classes out of context, be
+              sure to know that the w attribute may not be what you expect.
 
         NOTE: See "# NOTE REFERENCE" below. That line of code is manually
               initializing the p_fitness attribute for each COMB_Particle
@@ -316,9 +335,7 @@ class COMB_Swarm:
 
         Returns
         -------
-        abest : 1-Dimensional ndarray, size ndim; Holds the archived best
-                position found by any particle in the swarm, even if the global
-                best has been shuffled.
+        None
 
         abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
                   best position. 
@@ -327,9 +344,9 @@ class COMB_Swarm:
         ------
         None
         """
-        for i in range(1, t_bounds[1]):
+        for i in range(1, self.t_bounds[1]):
             self.t = i
-            for p in swarm:
+            for p in self.swarm:
                 p.update_inertia(self.gbinary)
                 p.update_velocity(self.gbest, self.abest)
                 p.update_position()
@@ -356,7 +373,6 @@ class COMB_Swarm:
             self.gbest_counter += 1
             if self.gbest_counter >= 3:
                 self.shuffle_gbest()
-        return (self.abest, self.abinary)
     
     def shuffle_gbest(self):
         """Randomize gbest after stagnation.
@@ -379,7 +395,7 @@ class COMB_Swarm:
         ------
         None
         """
-        assert(self.gbest_counter = 3)
+        assert(self.gbest_counter == 3)
         self.gbest = np.random.uniform(low=self.x_bounds[0],
                                        high=self.x_bounds[1],
                                        size=self.ndim)
@@ -397,13 +413,13 @@ class COMB_Swarm:
         Converts any continuous position vector to a binary position
         vector according to the following formula.
 
-                 { 1, if rand() < S(x[i,j])  
+                 { True, if rand() < S(x[i,j])  
         b[i,j] = {
-                 { 0, otherwise
+                 { False, otherwise
 
         where b is the binary position vector, b[i] is the binary position
-        vector of particle i, b[i, j] is a feature (1 for inclusion,
-        0 for exclusion) in b[i], rand() is a uniform random
+        vector of particle i, b[i, j] is a feature (True for inclusion,
+        False for exclusion) in b[i], rand() is a uniform random
         number ϵ [0.0, 1.0), S is a logistic transformation, x is the
         continuous position vector, and x[i]/x[i,j] are analogous to
         b[i]/b[i,j].
@@ -414,13 +430,14 @@ class COMB_Swarm:
 
         Returns
         -------
-        None
+        binary : ndarray, size ndim; boolean ndarray that holds the
+                 binary version of x, a continuous position vector.
 
         Raises
         ------
         None
         """
-        return (np.random.uniform(size=x.size) < expit(x)).astype(int)
+        return (np.random.uniform(size=x.size) < expit(x))
 
     def test_classify(self, b):
         """Return a classification performance for a binary position vector.
@@ -449,9 +466,8 @@ class COMB_Swarm:
         ------
         None
         """
-        # BROKEN: It currently uses the entire data set, need to add functionality
-        # so that it only uses the features listed in b.
-        scores = cross_val_score(self.clf, self.X_train, self.y_train, cv=10)
+        scores = cross_val_score(self.clf, self.X_train[:, b],
+                                 y=self.y_train, cv=10)
         return scores.mean()
         
     def eval_fitness(self, b):
@@ -490,15 +506,39 @@ class COMB_Swarm:
         ------
         None
         """
+        if np.count_nonzero(b) == 0:
+            self.all_false += 1
+            return 0 
         # clf_perf is the same as Pb in the above equation
-        clf_perf = test_classify(b)
+        clf_perf = self.test_classify(b)
         f = ((self.alpha*clf_perf)
              + (   (1-self.alpha)
                  * ((self.ndim-np.count_nonzero(b)) / self.ndim)
                )
             )
         return f
-    
 
+    def final_eval(self):
+        """Perform final evaluation of best position.
 
+        Assigns the results from a final cross-validation on data that
+        was reserved during creation of the dataset to final_scores.
+        This data was not used at all during the entire COMB-PSO
+        algorithm and is used to test the actual accuracy of the
+        feature subset resulting from the algorithm.
 
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+        """
+        self.final_scores = cross_val_score(self.clf,
+                                            self.X_test[:, self.abinary],
+                                            self.y_test, cv=10)

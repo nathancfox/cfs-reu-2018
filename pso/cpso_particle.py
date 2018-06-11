@@ -3,7 +3,7 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 8, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 9, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
@@ -27,12 +27,13 @@ class COMB_Particle:
     
     v : 1-Dimensional ndarray; Holds the current particle velocity.
 
-    b : 1-Dimensional ndarray; Holds the current binary position.
+    b : 1-Dimensional ndarray; Holds the current binary position as
+        an array of booleans.
 
     pbest : 1-Dimensional ndarray; Holds the particle's best position to date.
 
-    pbinary : 1-Dimensional ndarray, size ndim; Holds the binary global
-              best position.
+    pbinary : 1-Dimensional ndarray, size ndim; Holds the binary best position 
+              converted from pbest as a list of booleans.
 
     p_fitness : float; the fitness value returned by COMB_Swarm.eval_fitness
                 for the current pbest.
@@ -110,16 +111,7 @@ class COMB_Particle:
         ------
         None
         """
-        self.x = np.zeros(ndim)
-        self.v = np.zeros(ndim)
-        self.initialize_position()
-        self.initialize_velocity()
-        self.b = np.zeros(ndim) # Unnecessary, but a placeholder for readability
-        self.update_binary_position()
-        self.pbest = x.copy()
-        self.pbinary = self.b.copy()
-        self.p_fitness = 0.0 # Initialized in the swarm class
-        self.w = 0 # Initialized in the swarm class
+        self.w = 0 # Initialized in the swarm class in execute_search()
         self.c1 = c1
         self.c2 = c2
         self.c3 = c3
@@ -127,7 +119,16 @@ class COMB_Particle:
         self.x_bounds = x_bounds
         self.v_bounds = v_bounds
         self.w_bounds = w_bounds
-        
+        self.x = np.zeros(ndim)
+        self.v = np.zeros(ndim)
+        self.initialize_position()
+        self.initialize_velocity()
+        self.b = np.zeros(ndim) # Unnecessary, but a placeholder for readability
+        self.update_binary_position()
+        self.pbest = self.x.copy()
+        self.pbinary = self.b.copy()
+        self.p_fitness = 0.0 # Initialized in the swarm class.
+                
     def update_position(self):
         """Update the position vector for one time step.
 
@@ -236,7 +237,7 @@ class COMB_Particle:
         """
         # This implementation cannot start at the upper bound,
         # Not sure if that's a problem
-        v = np.random.uniform(low=self.v_bounds[0],
+        self.v = np.random.uniform(low=self.v_bounds[0],
                               high=self.v_bounds[1],
                               size=self.ndim)
 
@@ -272,13 +273,13 @@ class COMB_Particle:
         Converts any continuous position vector to a binary position
         vector according to the following formula.
 
-                 { 1, if rand() < S(x[i,j])  
+                 { True, if rand() < S(x[i,j])  
         b[i,j] = {
-                 { 0, otherwise
+                 { False, otherwise
 
         where b is the binary position vector, b[i] is the binary position
-        vector of particle i, b[i, j] is a feature (1 for inclusion,
-        0 for exclusion) in b[i], rand() is a uniform random
+        vector of particle i, b[i, j] is a feature (True for inclusion,
+        False for exclusion) in b[i], rand() is a uniform random
         number ϵ [0.0, 1.0), S is a logistic transformation, x is the
         continuous position vector, and x[i]/x[i,j] are analogous to
         b[i]/b[i,j].
@@ -289,13 +290,14 @@ class COMB_Particle:
 
         Returns
         -------
-        None
+        binary : ndarray, size ndim; boolean ndarray that holds the
+                 binary version of x, a continuous position vector.
 
         Raises
         ------
         None
         """
-        return (np.random.uniform(size=x.size) < expit(x)).astype(int)
+        return (np.random.uniform(size=x.size) < expit(x))
 
     def update_inertia(self, gbinary):
         """Update inertia coefficient, w.
@@ -321,11 +323,11 @@ class COMB_Particle:
         ------
         None
         """
-        self.w = self.w_bounds[1]
-               - ((self.w_bounds[1]-self.w_bounds[0])
-                       * self.jaccard_index(gbinary))
+        self.w = (self.w_bounds[1]
+                  - ((self.w_bounds[1]-self.w_bounds[0])
+                         * self.jaccard_index(gbinary)))
    
-    def jaccard_index(gbinary):
+    def jaccard_index(self, gbinary):
         """Return binary Jaccard index coefficient between x and gbinary.
 
         Calculates the binary Jaccard index coefficient between the
@@ -340,6 +342,13 @@ class COMB_Particle:
         and M00 is the number of 0-0 matches between the binary strings.
         n is the particle size, or length of either vector.
 
+        NOTE: This method does not catch the exception where both strings
+              are entirely False/0 which would cause division by 0. It
+              should be added in a later version, but for now, it seems
+              inconceivable that an implementation of COMB-PSO would ever
+              return a gbinary that was all 0's (none of the features
+              included in the predictive subset).
+
         Parameters
         ----------
         gbinary : 1-Dimensional ndarray, size ndim; Holds the binary
@@ -348,19 +357,17 @@ class COMB_Particle:
         Returns
         -------
         j : float; binary Jaccard index coefficient calculated between
-            b and gbinary.
+            b and gbinary. j ϵ [0.0, 1.0].
 
         Raises
         ------
         None
         """
-        m11, m00, = 0, 0
+        m11, m00 = 0, 0
         for i in range(self.ndim):
             if gbinary[i] == self.b[i]:
-                if gbinary[i] == 1:
+                if gbinary[i] == True:
                     m11 += 1
-                elif gbinary[i] == 0:
-                    m00 += 1
                 else:
-                    return -1
+                    m00 += 1
         return (m11 / (self.ndim - m00))
