@@ -3,12 +3,11 @@
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
-# Date Modified: June 9, 2018, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 11, 2018, by Nathan Fox <nathanfox@miami.edu>
 #
 #-----------------------------------------------------------------------------+
 
-# TODO: Update docstrings, proofread, and write test cases.
-#       Also make sure my imports are correct.
+# TODO: Update docstrings.
 #
 # Evolutionary Functionality: 
 #
