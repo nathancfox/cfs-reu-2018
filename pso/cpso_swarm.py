@@ -255,11 +255,11 @@ class COMB_Swarm:
          self.y_train, self.y_test) = train_test_split(self.data, self.target,
                                                        test_size=self.test_size)
         self.final_scores = np.zeros(10)
-        self.report = {'num_features': np.zeros(t_bounds[1]).astype(int),
-                       'g_fitness': np.zeros(t_bounds[1]),
-                       'a_fitness': np.zeros(t_bounds[1]),
-                       'a_score': np.zeros(t_bounds[1])
-                      }
+        self.var_by_time = {'num_features': np.zeros(t_bounds[1]).astype(int),
+                            'g_fitness': np.zeros(t_bounds[1]),
+                            'a_fitness': np.zeros(t_bounds[1]),
+                            'a_score': np.zeros(t_bounds[1])
+                           }
 
     def initialize_particles(self):
         """Initialize the particles that comprise the swarm.
@@ -312,6 +312,7 @@ class COMB_Swarm:
             f, f_score = self.eval_fitness(self.swarm[i].b)
             # NOTE REFERENCE : See docstring above.
             self.swarm[i].p_fitness = f
+            self.swarm[i].p_score = f_score
             if i == 0:
                 self.gbest = self.swarm[i].x.copy()
                 self.gbinary = self.swarm[i].b.copy()
@@ -392,7 +393,7 @@ class COMB_Swarm:
             self.var_by_time['num_features'][i] = np.count_nonzero(self.abinary)
             self.var_by_time['g_fitness'][i] = self.g_fitness
             self.var_by_time['a_fitness'][i] = self.a_fitness
-
+            self.var_by_time['a_score'][i] = self.a_score
     
     def shuffle_gbest(self):
         """Randomize gbest after stagnation.
@@ -530,7 +531,7 @@ class COMB_Swarm:
         """
         if np.count_nonzero(b) == 0:
             self.all_false += 1
-            return 0 
+            return 0.0, 0.0 
         # clf_perf is the same as Pb in the above equation
         clf_perf = self.test_classify(b)
         f = ((self.alpha*clf_perf)
@@ -538,7 +539,9 @@ class COMB_Swarm:
                  * ((self.ndim-np.count_nonzero(b)) / self.ndim)
                )
             )
-        return (f, clf_perf)
+        # print(str(f)+'\n'+str(clf_perf))
+        # sys.exit(0)
+        return f, clf_perf
 
     def final_eval(self):
         """Perform final evaluation of best position.
@@ -561,6 +564,7 @@ class COMB_Swarm:
         ------
         None
         """
+        self.clf.fit(self.X_train[:, self.abinary], self.y_train)
         self.final_scores = cross_val_score(self.clf,
                                             self.X_test[:, self.abinary],
                                             self.y_test, cv=10)
