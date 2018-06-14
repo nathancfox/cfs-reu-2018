@@ -21,7 +21,7 @@ inducing, based on phenotypic assay data and in vitro kinase inhibition profiles
 ### Branches
 **master:** No real development here. Represents stable work.
 
-**pso\_dev:** Development of the Python implementation of the COMB-PSO algorithm.
+**cpso\_dev:** Development of the Python implementation of the COMB-PSO algorithm.
 
 **eda:** Exploratory analysis of the kinase inhibitor data.
 
