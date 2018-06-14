@@ -3,7 +3,7 @@
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
-# Date Modified: June 11, 2018, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 14, 2018, by Nathan Fox <nathanfox@miami.edu>
 #
 #-----------------------------------------------------------------------------+
 
@@ -240,9 +240,11 @@ class COMB_Swarm:
         self.gbest_counter = 0
         self.gbinary = np.zeros(self.ndim)
         self.g_fitness = 0.0
+        self.g_score = 0.0
         self.abest = np.zeros(self.ndim)
         self.abinary = np.zeros(self.ndim)
         self.a_fitness = 0.0
+        self.a_score = 0.0
         self.swarm = []
 
         self.clf = svm.SVC()
@@ -255,7 +257,8 @@ class COMB_Swarm:
         self.final_scores = np.zeros(10)
         self.report = {'num_features': np.zeros(t_bounds[1]).astype(int),
                        'g_fitness': np.zeros(t_bounds[1]),
-                       'a_fitness': np.zeros(t_bounds[1])
+                       'a_fitness': np.zeros(t_bounds[1]),
+                       'a_score': np.zeros(t_bounds[1])
                       }
 
     def initialize_particles(self):
@@ -306,23 +309,27 @@ class COMB_Swarm:
             self.swarm.append(COMB_Particle(self.c1, self.c2, self.c3,
                                             self.ndim, self.x_bounds,
                                             self.v_bounds, self.w_bounds))
-            f = self.eval_fitness(self.swarm[i].b)
+            f, f_score = self.eval_fitness(self.swarm[i].b)
             # NOTE REFERENCE : See docstring above.
             self.swarm[i].p_fitness = f
             if i == 0:
                 self.gbest = self.swarm[i].x.copy()
                 self.gbinary = self.swarm[i].b.copy()
                 self.g_fitness = f
+                self.g_score = f_score
             elif f > self.g_fitness:
                 self.gbest = self.swarm[i].x.copy()
                 self.gbinary = self.swarm[i].b.copy()
                 self.g_fitness = f
+                self.g_score = f_score
         self.abest = self.gbest.copy()
         self.abinary = self.gbinary.copy()
         self.a_fitness = self.g_fitness
-        self.report['num_features'][0] = np.count_nonzero(self.abinary)
-        self.report['g_fitness'][0] = self.g_fitness
-        self.report['a_fitness'][0] = self.a_fitness
+        self.a_score = self.g_score
+        self.var_by_time['num_features'][0] = np.count_nonzero(self.abinary)
+        self.var_by_time['g_fitness'][0] = self.g_fitness
+        self.var_by_time['a_fitness'][0] = self.a_fitness
+        self.var_by_time['a_score'][0] = self.a_score
 
     def execute_search(self):
         """Execute a full run of the COMB-PSO Algorithm.
@@ -357,11 +364,12 @@ class COMB_Swarm:
                 p.update_velocity(self.gbest, self.abest)
                 p.update_position()
                 p.update_binary_position()
-                f = self.eval_fitness(p.b)
+                f, f_score = self.eval_fitness(p.b)
                 if f > p.p_fitness:
                     p.pbest = p.x.copy()
                     p.pbinary = p.b.copy()
                     p.p_fitness = f
+                    p.p_score = f_score
                 if f > self.g_fitness:
                     # -1 because the counter should be 0 during the
                     # next comparison to updated positions. The other
@@ -372,16 +380,18 @@ class COMB_Swarm:
                     self.gbest = p.x.copy()
                     self.gbinary = p.b.copy()
                     self.g_fitness = f
+                    self.g_score = f_score
             if self.g_fitness > self.a_fitness:
                 self.abest = self.gbest.copy()
                 self.abinary = self.gbinary.copy()
                 self.a_fitness = self.g_fitness
+                self.a_score = self.g_score
             self.gbest_counter += 1
             if self.gbest_counter >= 3:
                 self.shuffle_gbest()
-            self.report['num_features'][i] = np.count_nonzero(self.abinary)
-            self.report['g_fitness'][i] = self.g_fitness
-            self.report['a_fitness'][i] = self.a_fitness
+            self.var_by_time['num_features'][i] = np.count_nonzero(self.abinary)
+            self.var_by_time['g_fitness'][i] = self.g_fitness
+            self.var_by_time['a_fitness'][i] = self.a_fitness
 
     
     def shuffle_gbest(self):
@@ -410,11 +420,12 @@ class COMB_Swarm:
                                        high=self.x_bounds[1],
                                        size=self.ndim)
         self.gbinary = self.convert_pos_to_binary(self.gbest)
-        self.g_fitness = self.eval_fitness(self.gbinary)
+        self.g_fitness, self.g_score = self.eval_fitness(self.gbinary)
         if self.g_fitness > self.a_fitness:
             self.abest = self.gbest.copy()
             self.abinary = self.gbinary.copy()
             self.a_fitness = self.g_fitness
+            self.a_score = self.g_score
         self.gbest_counter = 0
 
     def convert_pos_to_binary(self, x):
@@ -496,7 +507,7 @@ class COMB_Swarm:
               b is the subset of features selected
               alpha is a weight factor that denotes importance to size of the
                     subset and accuracy of the classifier
-              Pb is the classification performance given only b (decoded by y
+              Pb is the classification score given only b (decoded by y
                  and the position vector)
               |X| is the number of features (size of position vector)
               |b| is the number of features in b
@@ -510,7 +521,8 @@ class COMB_Swarm:
 
         Returns
         -------
-        f : the value of the fitness function with the given parameters
+        f : float tuple, size 2; f[0] is the value of the fitness function,
+                                 f[1] is the classification score.
 
         Raises
         ------
@@ -526,7 +538,7 @@ class COMB_Swarm:
                  * ((self.ndim-np.count_nonzero(b)) / self.ndim)
                )
             )
-        return f
+        return (f, clf_perf)
 
     def final_eval(self):
         """Perform final evaluation of best position.
