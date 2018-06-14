@@ -3,7 +3,7 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 11, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 14, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
