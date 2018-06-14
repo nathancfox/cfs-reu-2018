@@ -253,6 +253,10 @@ class COMB_Swarm:
          self.y_train, self.y_test) = train_test_split(self.data, self.target,
                                                        test_size=self.test_size)
         self.final_scores = np.zeros(10)
+        self.report = {'num_features': np.zeros(t_bounds[1]).astype(int),
+                       'g_fitness': np.zeros(t_bounds[1]),
+                       'a_fitness': np.zeros(t_bounds[1])
+                      }
 
     def initialize_particles(self):
         """Initialize the particles that comprise the swarm.
@@ -316,6 +320,9 @@ class COMB_Swarm:
         self.abest = self.gbest.copy()
         self.abinary = self.gbinary.copy()
         self.a_fitness = self.g_fitness
+        self.report['num_features'][0] = np.count_nonzero(self.abinary)
+        self.report['g_fitness'][0] = self.g_fitness
+        self.report['a_fitness'][0] = self.a_fitness
 
     def execute_search(self):
         """Execute a full run of the COMB-PSO Algorithm.
@@ -372,6 +379,10 @@ class COMB_Swarm:
             self.gbest_counter += 1
             if self.gbest_counter >= 3:
                 self.shuffle_gbest()
+            self.report['num_features'][i] = np.count_nonzero(self.abinary)
+            self.report['g_fitness'][i] = self.g_fitness
+            self.report['a_fitness'][i] = self.a_fitness
+
     
     def shuffle_gbest(self):
         """Randomize gbest after stagnation.
