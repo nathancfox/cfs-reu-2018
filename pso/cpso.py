@@ -176,7 +176,7 @@ if args.output_path[-1] != '/':
 
 if args.copyscript:
     import shutil
-    shutil.copy(__file__, args.output_path)
+    shutil.copy(__file__, args.output_path+'cpso_script.py')
 
 # Initialize swarm and execute algorithm
 s = COMB_Swarm(args.npart, args.c[0], args.c[1], args.c[2], args.ndim,
@@ -333,6 +333,15 @@ with open(args.output_path+'summary_results.out', 'a') as f:
     f.write(tempdesc[0]+'\n')
     for i in range(1, len(tempdesc)):
         f.write(' '*35 + tempdesc[i]+'\n')
+    f.write('\n')
+    if args.copyscript:
+        f.write('  {:30} : '.format('cpso_script.py'))
+        tempdesc = ('This is the version of cpso.py that was used to generate '
+                + 'this particular run of the algorithm.')
+        tempdesc = tw.wrap(tempdesc, width=45)
+        f.write(tempdesc[0]+'\n')
+        for i in range(1, len(tempdesc)):
+            f.write(' '*35 + tempdesc[i]+'\n')
     f.write('\n')
     f.write('-'*80+'\n')
     f.write('  End of Experiment\n')
