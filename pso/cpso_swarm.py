@@ -3,7 +3,7 @@
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
-# Date Modified: June 14, 2018, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 15, 2018, by Nathan Fox <nathanfox@miami.edu>
 #
 #-----------------------------------------------------------------------------+
 
@@ -255,8 +255,10 @@ class COMB_Swarm:
          self.y_train, self.y_test) = train_test_split(self.data, self.target,
                                                        test_size=self.test_size)
         self.final_scores = np.zeros(10)
-        self.var_by_time = {'num_features': np.zeros(t_bounds[1]).astype(int),
+        self.var_by_time = {
+                            'num_features': np.zeros(t_bounds[1]).astype(int),
                             'g_fitness': np.zeros(t_bounds[1]),
+                            'g_score' : np.zeros(t_bounds[1]),
                             'a_fitness': np.zeros(t_bounds[1]),
                             'a_score': np.zeros(t_bounds[1])
                            }
@@ -329,6 +331,7 @@ class COMB_Swarm:
         self.a_score = self.g_score
         self.var_by_time['num_features'][0] = np.count_nonzero(self.abinary)
         self.var_by_time['g_fitness'][0] = self.g_fitness
+        self.var_by_time['g_score'][0] = self.g_score
         self.var_by_time['a_fitness'][0] = self.a_fitness
         self.var_by_time['a_score'][0] = self.a_score
 
@@ -392,6 +395,7 @@ class COMB_Swarm:
                 self.shuffle_gbest()
             self.var_by_time['num_features'][i] = np.count_nonzero(self.abinary)
             self.var_by_time['g_fitness'][i] = self.g_fitness
+            self.var_by_time['g_score'][i] = self.g_score
             self.var_by_time['a_fitness'][i] = self.a_fitness
             self.var_by_time['a_score'][i] = self.a_score
     

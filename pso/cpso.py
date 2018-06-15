@@ -1,3 +1,43 @@
+#------------------------------------------------------------------------------#
+#
+# Title: COMB-PSO Single Run Wrapper
+# Author: Nathan Fox <nathanfox@miami.edu>
+# Date Written: June 14, 2018
+# Date Modified: June 15, 2018
+#
+#------------------------------------------------------------------------------#
+
+"""Runs a single instance of the COMB-PSO feature selection algorithm.
+
+This is a wrapper script, designed to be usable by non-programmers to access
+the COMB_Particle and COMB_Swarm classes to run a single instance of the
+COMB-Particle Swarm Optimization feature selection algorithm. It takes all
+algorithm parameters as command line options and data as file arguments.
+It outputs raw data as well as a detailed report in summary_report.out.
+
+Example call:
+
+    python3 cpso.py --npart 100 --ndim 2000 -c 2.0 2.0 2.0 -a 0.8
+    --testsize 0.3 --xbounds -6.0 6.0 --vbounds -4.0 1.0 --wbounds 0.4 0.9
+    -t 100 --data path/to/feature/data.csv --target path/to/target/data.csv
+    --labels path/to/feature/labels.csv --expname Test_Experiment_1
+    --author "Nathan Fox" --outpath myoutputdirectory/ --copyscript
+
+See Usage:
+
+    python3 cpso.py -h
+
+Most of the command line arguments are required. Only --labels, --expname,
+--author, --outpath, and --copyscript are optional.
+
+Dependencies:
+    Python 3.6
+    cpso_particle
+    cpso_swarm
+    numpy
+    pandas
+"""
+
 import time
 start = time.time()
 import sys
@@ -6,6 +46,7 @@ import datetime
 import argparse
 import pickle
 import textwrap as tw
+
 from cpso_particle import COMB_Particle
 from cpso_swarm import COMB_Swarm
 import numpy as np
@@ -31,6 +72,7 @@ def seconds_readable(seconds):
     h, m = divmod(m, 60)
     return (int(h), int(m), int(s))
             
+# Collect and Process Command Line Arguments
 parser = argparse.ArgumentParser(description=('Run a single instance of'+
                                     ' the COMB-PSO feature selection'+
                                     ' algorithm.'))
@@ -64,18 +106,15 @@ parser.add_argument('--labels', dest='feature_labels', default=None,
 parser.add_argument('--expname', default='Generic Experiment',
                     help='Experiment Name (for report file)')
 parser.add_argument('--author', default='Unknown Author',
-                    help='Author Name (for report file)')
+                    help='Author Name (for report file); use quotes')
 parser.add_argument('--outpath', dest='output_path', default='./',
                     help='Directory to store output files')
-# Leftover from debugging
-# for a in parser._actions:
-#     print('\n'+str(a)+'\n')
-# sys.exit(0)
+parser.add_argument('--copyscript', action='store_true',
+                    help='Make a copy of this script in --outpath')
 
 args = parser.parse_args()
 
-# Argument Checking
-
+# Manual Argument Checking
 err_flag = False
 if args.npart <= 0:
     err_flag = True
@@ -131,25 +170,15 @@ args.v_bounds = tuple(args.v_bounds)
 args.w_bounds = tuple(args.w_bounds)
 args.t_bounds = (0, args.t)
 
+# Downstream file saving code expects directories to end with a '/'
 if args.output_path[-1] != '/':
     args.output_path.append('/')
-"""
-# Defaults saved while I test the command line options.
-npart = 50
-c1 = 2.1
-c2 = 2.1
-c3 = 2.1
-ndim = 190
-alpha = 0.8
-test_size = 0.3
-x_bounds = (-6.0, 6.0)
-v_bounds = (-2.0, 2.0)
-w_bounds = (0.4, 0.9)
-t_bounds = (0, 200)
-data_path = './working_data/prepped_for_classifier/data.csv'
-target_path = './working_data/prepped_for_classifier/target.csv'
-"""
 
+if args.copyscript:
+    import shutil
+    shutil.copy(__file__, args.output_path)
+
+# Initialize swarm and execute algorithm
 s = COMB_Swarm(args.npart, args.c[0], args.c[1], args.c[2], args.ndim,
                args.alpha, args.test_size,
                args.x_bounds, args.v_bounds, args.w_bounds, args.t_bounds,
@@ -157,6 +186,7 @@ s = COMB_Swarm(args.npart, args.c[0], args.c[1], args.c[2], args.ndim,
 s.initialize_particles()
 s.execute_search()
 s.final_eval()
+# Collect and process data from inside the swarm
 data = []
 columns = []
 for k, v in s.var_by_time.items():
@@ -176,6 +206,7 @@ with open(args.output_path+'pickled_trained_classifier', 'wb') as classifier:
 
 end = time.time()
 
+# Write summary_report.out
 with open(args.output_path+'summary_results.out', 'a') as f:
     f.write('\n\n')
     f.write('#'*80+'\n')
