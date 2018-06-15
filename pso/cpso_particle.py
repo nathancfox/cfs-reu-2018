@@ -3,7 +3,7 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 11, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: June 14, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
 
@@ -127,6 +127,7 @@ class COMB_Particle:
         self.pbest = self.x.copy()
         self.pbinary = self.b.copy()
         self.p_fitness = 0.0 # Initialized in the swarm class.
+        self.p_score = 0.0 # Initialized in the swarm class.
                 
     def update_position(self):
         """Update the position vector for one time step.
