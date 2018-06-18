@@ -541,6 +541,14 @@ for vhalfrange in np.arange(0.0, 4.0, 0.2):
 ```
 
 ### Results/Analysis
+I made two mistakes in coding the experiment. I forgot that the `cpso.py` script will complain
+and quit if v_bounds[1]-v_bounds[0] <= 0, so all of the vrange = 0.0 data points were useless
+(1 per cohort). Additionally, in `experiment_script.py`, I forgot that the `np.linspace` method's
+stop parameter is excluded. So I'm missing a data point from the end where vrange = 8.0. I don't
+think that either of these mistakes invalidated my data, so I proceeded normally.
+
+NOTE: Something about some of the cohorts is causing a negative correlation between TRAINING
+score and TEST score. Explore later. Is it a third party like num_of_features?
 
 ### Conclusions/Next Questions
 
@@ -570,7 +578,7 @@ in the middle of the curve? How do I move the upper and lower asymptotes?
 Other thoughts about Hassan's previous approach of Maximum Relevance and Iterative Checking. What
 order did he iteratively check each of the 50 kinases? Was it in the same order each time? A random
 order each time? It is important to note that kinases do not exist independently, but tend to affect
-each other. Thus, because Hassan is not checking all permutations, (2^90 permutations is
+each other. Thus, because Hassan is not checking all permutations, (2^190 permutations is
 computationally impossible), the order in which he checks is biologically relevant. Could I improve
 his results merely by running it multiple times and shuffling the order each time, then take
 the highest?
@@ -584,6 +592,18 @@ Things to do:
   but too few is not.
 * Read up on the pathways known to affect neurite outgrowth.
 * Take a given position vector and convert it to binary many times, evaluate all the outputs.
+* Get the pharmacologically linked kinase families and look at which families are activated
+  for the returned subsets. Is it always the same families? Always the same kinases in those
+  families? If they're actually pharmacologically linked, then the algorithm should give back
+  only a consistent subset of families, not a consistent subset of kinases. Because with regard
+  to informational contribution, most kinases inside a pharmacologically linked family are
+  approximately the same. Then, it seems likely that each family represents a single branch
+  pathway. (doesn't matter which kinase you knock down in a single branch pathway). However,
+  kinases that don't align perfectly with their family may be intersection kinases.
+
+I want to test that last bullet point on a different dataset. I want a phenotype that is
+extremely well characterized and has the full regulation network known. Thus, I can test for
+my theory on single branch vs intersection nodes.
 
 ----------------------------------------------------------------------------------------------------
 
