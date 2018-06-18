@@ -10,6 +10,7 @@ Experiment|Date|Summary|Completed
 :---------|----|:------|---------
 [Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|Yes
 [Tuning VBounds Range](#0002)|06/16/2018|Testing COMB-PSO on kinase inhibitor data with a varying vbound range.|No
+[Conceptual Brainstorming](#1001)|06/18/2018|Brainstorming and contemplating about the last two experiments.|No
 
 ----------------------------------------------------------------------------------------------------
 
@@ -542,6 +543,47 @@ for vhalfrange in np.arange(0.0, 4.0, 0.2):
 ### Results/Analysis
 
 ### Conclusions/Next Questions
+
+----------------------------------------------------------------------------------------------------
+
+## Conceptual Brainstorming <a name="1001"></a>
+June 18, 2018
+
+Why did the num_of_features variable have a sigmoid relationship with the moving vbounds in
+[Tuning VBounds](#0001)? Because the position vector represents the propensity for that feature
+to be above/below the random value, or included vs. excluded. If x_i < 0, then S(x_i) < 0.5 and
+the odds are better that the feature will be excluded. However, the logistic function doesn't
+give an uniform chance. It gives a extremely drastic chance either one way or the other. Small
+changes in position can drastically change the chance of inclusion for a feature. Thus, if the
+velocity is skewed negatively, then the position is far more likely to be negative, thus the
+number of features included is small.
+
+However, is this desirable? Would it be better to replace the sigmoid function with a linear
+function? Such that S(x_i) = x_i/(x_bounds[1]-x_bounds[0])? Then the relationship would be far
+less extreme and the stochasticity would play a larger value? If I were to do this, it would mean
+that the stochasticity would begin to play a true role instead of merely a perturbance. That might
+mean that I would have to treat it more like a Monte Carlo simulation and run it multiple times.
+
+If the sigmoid behavior is desired, how do I move the function? Do I want a range that results
+in the middle of the curve? How do I move the upper and lower asymptotes?
+
+Other thoughts about Hassan's previous approach of Maximum Relevance and Iterative Checking. What
+order did he iteratively check each of the 50 kinases? Was it in the same order each time? A random
+order each time? It is important to note that kinases do not exist independently, but tend to affect
+each other. Thus, because Hassan is not checking all permutations, (2^90 permutations is
+computationally impossible), the order in which he checks is biologically relevant. Could I improve
+his results merely by running it multiple times and shuffling the order each time, then take
+the highest?
+
+Things to do:
+
+* Get the list of 50 best kinases and run the iterative algorithm, but shuffling each time.
+* Try changing the sigmoid function to a linear function.
+* Try changing alpha to 1.0
+* Try adapting the fitness function so that the second term is more intelligent. Fewer is good,
+  but too few is not.
+* Read up on the pathways known to affect neurite outgrowth.
+* Take a given position vector and convert it to binary many times, evaluate all the outputs.
 
 ----------------------------------------------------------------------------------------------------
 
