@@ -40,8 +40,8 @@ the vbounds\_center while keeping vbounds\_range constant. I'm varying vbounds f
 over the kinase inhibitor data, attempting to identify features (kinases) that are
 needed to correctly classify kinase inhibitors as {hit|non-hit}. 
 
-#### Parameters
-:-|--
+Parameter|Value
+:--------|-----
 Number of Particles (npart)|100
 Number of Features (ndim)|190
 Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
