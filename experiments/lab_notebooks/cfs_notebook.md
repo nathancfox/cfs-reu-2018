@@ -53,11 +53,11 @@ W Bounds (w\_bounds|(0.4, 0.9)
 Time (t\_bounds[1])|300
 
 #### Input
-**Feature Data:** data/data.csv
+Feature Data: data/data.csv
 
-**Target Data:** data/target.csv
+Target Data: data/target.csv
 
-**Feature Labels:** data/feature\_labels.csv
+Feature Labels: data/feature\_labels.csv
 
 #### Output
 
@@ -150,7 +150,7 @@ for vmin in np.arange(-6.0, 2.1, 0.2):
     counter += 1
 ```
 
-### Results
+### Results/Analysis
 
 #### Descriptive Statistics
 |       | num\_of\_features | a\_fitness          | training\_accuracy  | test\_accuracy     | 
@@ -195,3 +195,18 @@ Something else to note, the sigmoid relationship in Figure 1 appears to be bleed
 The impact on a\_fitness is expected (the fitness function included a weight on number
 of features where fewer is better), but I'm surprised that it stratified the testing accuracy.
 Perhaps this is because the fitness function is used to determine velocity?
+
+### Conclusions/Next Questions
+Disappointingly, I saw no relationship between a moving window for vbounds and the ultimate
+accuracy of the classifier on the test data. Surprisingly, I saw a strong sigmoid relationship
+between the value for vbounds and the number of features in the returned optimum subset.
+The logistic function is used to convert a continuous position vector into a binary position
+vector. I wonder if this is an artifact of that function. It seems extremely inconvenient.
+With the rest of the parameters, moving vbounds causes the algorithm to shift between
+two drastically different values. Additionally, this appears to bleed into the results of
+the classification accuracy on TRAINING data.
+
+Next questions include whether or not I can tune the y offset of the sigmoid relationship
+between vmin and number of features, or if necessary how to ameliorate it.
+
+----------------------------------------------------------------------------------------------------
