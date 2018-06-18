@@ -42,13 +42,21 @@ needed to correctly classify kinase inhibitors as {hit|non-hit}.
 
 #### Parameters
 Number of Particles (npart)|100
+
 Number of Features (ndim)|190
+
 Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
+
 Alpha (alpha)|0.8
+
 Test Size (testsize)|0.2
+
 X Bounds (x\_bounds)|(-6.0, 6.0)
+
 V Bounds (v\_bounds)|INDEPENDENT VARIABLE
+
 W Bounds (w\_bounds|(0.4, 0.9)
+
 Time (t\_bounds[1])|300
 
 #### Input
