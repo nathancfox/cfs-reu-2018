@@ -8,12 +8,13 @@
 ## Table of Contents
 Experiment|Date|Summary|Completed
 :---------|----|:------|---------
-[Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|No
+[Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|Yes
+[Tuning VBounds Range](#0002)|06/16/2018|Testing COMB-PSO on kinase inhibitor data with a varying vbound range.|No
 
 ----------------------------------------------------------------------------------------------------
 
 ## Tuning VBounds <a name="0001"></a>
-**Date:** June 15, 2018
+June 15, 2018
 
 ### Question
 How does changing the vbounds parameter in the COMB-PSO algorithm on the kinase inhibitor data
@@ -101,7 +102,10 @@ cpso\_particle.py and cpso\_swarm.py respectively hold COMB\_Particle and COMB\_
 used by cpso.py to run an experiment. The actual experiment code is called by job\_script
 for each iteration from within experiment\_script.py which generates and runs all jobs.
 data\_extracter.sh is a bash script that iterates over all summary\_report.out files and
-extracts the important information to analysis/raw\_data.csv.
+extracts the important information. I then pipe the output to analysis/raw\_data.csv.
+
+data/ holds the three data input files for the experiment. analysis/ holds anything processed
+after the experiment was run: processed data, analysis notebooks, generated figures, etc.
 
 This experiment was run with a series of dynamically created/called jobs on the Pegasus
 supercomputer at the Center for Computational Sciences at the University of Miami by
@@ -208,5 +212,368 @@ the classification accuracy on TRAINING data.
 
 Next questions include whether or not I can tune the y offset of the sigmoid relationship
 between vmin and number of features, or if necessary how to ameliorate it.
+
+----------------------------------------------------------------------------------------------------
+
+## Tuning VBounds - Range <a name="0002"></a>
+June 16, 2018
+
+### Question
+How does change the size of the range of vbounds alter the accuracy of the classifier using the
+returned subset? How does it affect other dependent variables like the fitness or number of
+features selected? In addition, does the placement of the center change the effect of the
+changing range?
+
+### Hypothesis
+Based on my previous experiment, [Tuning VBounds](#0001), I think that the placement of the center
+will matter a great deal. I think that each set will have its own range of results. However, I
+am not sure if it will affect the *relationship* that vrange has on the results. I hypothesize
+that a larger range will return generally higher TRAINING scores, because a small velocity
+prohibits exploration and limits the particles to exploitation behavior. Additionally, I
+hypothesize that a small range limited to > 0 or < 0 will produce unusual results.
+
+### Experiment Design
+This experiment is divided into 5 cohorts, where each cohort has a different vbounds center.
+For example, if vbounds = (-6.0, -2.0), the center = -4.0. I chose centers at {-4.0, -2.0,
+0.0, 2.0, 4.0}. For each cohort, I varied the range of vbounds from 0.0 to 8.0, or +/- 0.0
+to +/- 4.0. For each vbounds in each cohort, I ran a COMB-PSO algorithm to produce results.
+
+I will examine the number of features returned, the fitness score, and the TRAINING/TEST
+scores for the returned subset, based on both the center of the vbounds and the range
+of the vbounds.
+
+Parameter|Value
+:--------|-----
+Number of Particles (npart)|100
+Number of Features (ndim)|190
+Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
+Alpha (alpha)|0.8
+Test Size (testsize)|0.2
+X Bounds (x\_bounds)|(-6.0, 6.0)
+V Bounds (v\_bounds)|INDEPENDENT VARIABLE
+V Range (v\_bounds[1] - v\_bounds[0])| INDEPENDENT VARIABLE
+W Bounds (w\_bounds|(0.4, 0.9)
+Time (t\_bounds[1])|300
+
+#### Input
+For each cohort...
+
+* Feature Data: data/data.csv
+* Target Data: data/target.csv
+* Feature Labels: data/feature\_labels.csv
+
+#### Output
+Each cohort is contained in a separate directory inside the experiment directory. For each
+cohort...
+
+Each iteration creates a directory called XX\_vcenter\_VV\_vrange\_RR/ where XX = the
+iteration number, VV = vcenter, and RR = vrange. Inside each directory is a file list:
+
+* abinary.csv
+* cpso\_script.py
+* error.txt
+* output.txt
+* job\_script
+* pickled\_trained\_classifier
+* summary\_results.out
+* var\_by\_time.csv
+* X\_train.csv
+* y\_train.csv
+* X\_test.csv
+* y\_test.csv
+
+pickled\_trained\_classifier and all \*.csv files are variable outputs at the end of the
+algorithm. summary\_results.out is a comprehensive, auto-generated report. error.txt and
+output.txt are stderr and stdout for the job. cpso\_script.py and job\_script are the
+scripts used to run this experiment.
+
+#### Running the Experiment
+For each cohort...
+
+File List:
+
+* cpso\_particle.py
+* cpso\_swarm.py
+* cpso.py
+* experiment\_script.py
+* data\_extracter.sh
+
+Directory List:
+
+* analysis/
+* data/
+
+cpso\_particle.py and cpso\_swarm.py respectively hold COMB\_Particle and COMB\_Swarm classes
+used by cpso.py to run an experiment. The actual experiment code is called by job\_script
+for each iteration from within experiment\_script.py which generates and runs all jobs.
+data\_extracter.sh is a bash script that iterates over all summary\_report.out files and
+extracts the important information. I then pipe the output to analysis/raw\_data.csv.
+
+data/ holds the three data input files for the experiment. analysis/ holds anything processed
+after the experiment was run: processed data, analysis notebooks, generated figures, etc.
+
+This experiment was run with a series of dynamically created/called jobs on the Pegasus
+supercomputer at the Center for Computational Sciences at the University of Miami by
+user ncf30 in project reu. Output emails are dumped in the LSF-Pegasus folder in
+\<nathanfox@miami.edu\>.
+
+
+#### experiment\_script.py for Each Cohort
+Center = -4.0
+```
+import os
+import numpy as np
+
+project = 'reu'
+queue = 'general'
+runtime = '2:00'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+counter = 0
+vcenter = -4.0
+for vhalfrange in np.arange(0.0, 4.0, 0.2):
+    vmax = vcenter + vhalfrange
+    vmin = vcenter - vhalfrange
+    filename = '{:02}_vcenter_-4.0_vrange_{:+.1f}'.format(counter, 2*vhalfrange)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds {:.1f} {:.1f} '.format(vmin, vmax)
+              + '--wbounds 0.4 0.9 --time 300 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Tuning Velocity Bounds: v_bounds = '
+              + '({:.1f}, {:.1f})" '.format(vmin, vmax)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+	      + '--copyscript\n')
+    os.system('bsub < {}/job_script'.format(filename))
+    counter += 1
+```
+
+Center = -2.0
+```
+import os
+import numpy as np
+
+project = 'reu'
+queue = 'general'
+runtime = '2:00'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+counter = 0
+vcenter = -2.0
+for vhalfrange in np.arange(0.0, 4.0, 0.2):
+    vmax = vcenter + vhalfrange
+    vmin = vcenter - vhalfrange
+    filename = '{:02}_vcenter_-2.0_vrange_{:+.1f}'.format(counter, 2*vhalfrange)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds {:.1f} {:.1f} '.format(vmin, vmax)
+              + '--wbounds 0.4 0.9 --time 300 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Tuning Velocity Bounds: v_bounds = '
+              + '({:.1f}, {:.1f})" '.format(vmin, vmax)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+	      + '--copyscript\n')
+    os.system('bsub < {}/job_script'.format(filename))
+    counter += 1
+```
+
+Center = 0.0
+```
+import os
+import numpy as np
+
+project = 'reu'
+queue = 'general'
+runtime = '2:00'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+counter = 0
+vcenter = 0.0
+for vhalfrange in np.arange(0.0, 4.0, 0.2):
+    vmax = vcenter + vhalfrange
+    vmin = vcenter - vhalfrange
+    filename = '{:02}_vcenter_0.0_vrange_{:+.1f}'.format(counter, 2*vhalfrange)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds {:.1f} {:.1f} '.format(vmin, vmax)
+              + '--wbounds 0.4 0.9 --time 300 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Tuning Velocity Bounds: v_bounds = '
+              + '({:.1f}, {:.1f})" '.format(vmin, vmax)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+	      + '--copyscript\n')
+    os.system('bsub < {}/job_script'.format(filename))
+    counter += 1
+```
+
+Center = 2.0
+```
+import os
+import numpy as np
+
+project = 'reu'
+queue = 'general'
+runtime = '2:00'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+counter = 0
+vcenter = 2.0
+for vhalfrange in np.arange(0.0, 4.0, 0.2):
+    vmax = vcenter + vhalfrange
+    vmin = vcenter - vhalfrange
+    filename = '{:02}_vcenter_2.0_vrange_{:+.1f}'.format(counter, 2*vhalfrange)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds {:.1f} {:.1f} '.format(vmin, vmax)
+              + '--wbounds 0.4 0.9 --time 300 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Tuning Velocity Bounds: v_bounds = '
+              + '({:.1f}, {:.1f})" '.format(vmin, vmax)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+	      + '--copyscript\n')
+    os.system('bsub < {}/job_script'.format(filename))
+    counter += 1
+```
+
+Center = 4.0
+```
+import os
+import numpy as np
+
+project = 'reu'
+queue = 'general'
+runtime = '2:00'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+counter = 0
+vcenter = 4.0
+for vhalfrange in np.arange(0.0, 4.0, 0.2):
+    vmax = vcenter + vhalfrange
+    vmin = vcenter - vhalfrange
+    filename = '{:02}_vcenter_4.0_vrange_{:+.1f}'.format(counter, 2*vhalfrange)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds {:.1f} {:.1f} '.format(vmin, vmax)
+              + '--wbounds 0.4 0.9 --time 300 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Tuning Velocity Bounds: v_bounds = '
+              + '({:.1f}, {:.1f})" '.format(vmin, vmax)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+	      + '--copyscript\n')
+    os.system('bsub < {}/job_script'.format(filename))
+    counter += 1
+```
+
+### Results/Analysis
+
+### Conclusions/Next Questions
+
+----------------------------------------------------------------------------------------------------
+
+## TITLE <a name="0003"></a>
+DATE
+
+### Question
+
+### Hypothesis
+
+### Experiment Design
+
+
+Parameter|Value
+:--------|-----
+
+#### Input
+
+#### Output
+
+#### Running the Experiment
+
+File List:
+
+Directory List:
+
+#### EXPERIMENT SCRIPT
+```
+```
+
+### Results/Analysis
+
+### Conclusions/Next Questions
 
 ----------------------------------------------------------------------------------------------------
