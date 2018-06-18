@@ -52,11 +52,11 @@ W Bounds (w\_bounds|(0.4, 0.9)
 Time (t\_bounds[1])|300
 
 #### Input
-Feature Data: data/data.csv
+**Feature Data:** data/data.csv
 
-Target Data: data/target.csv
+**Target Data:** data/target.csv
 
-Feature Labels: data/feature\_labels.csv
+**Feature Labels:** data/feature\_labels.csv
 
 #### Output
 
@@ -148,3 +148,49 @@ for vmin in np.arange(-6.0, 2.1, 0.2):
     os.system('bsub < {}/job_script'.format(filename))
     counter += 1
 ```
+
+### Results
+
+#### Descriptive Statistics
+|       | num\_of\_features | a\_fitness          | training\_accuracy  | test\_accuracy     | 
+|-------|-------------------|---------------------|---------------------|--------------------| 
+| count | 41.0              | 41.0                | 41.0                | 41.0               | 
+| mean  | 39.4390243902439  | 0.7632048780487803  | 0.7558951219512198  | 0.7303146341463412 | 
+| std   | 36.39783563653738 | 0.07145365613885518 | 0.04258470354023562 | 0.0526396835143203 | 
+| min   | 2.0               | 0.675               | 0.6964              | 0.5983             | 
+| 25%   | 2.0               | 0.6938              | 0.7159              | 0.6967             | 
+| 50%   | 45.0              | 0.7254              | 0.7406              | 0.7367             | 
+| 75%   | 77.0              | 0.8335              | 0.7948              | 0.7683             | 
+| max   | 80.0              | 0.8571              | 0.824               | 0.8183             | 
+
+#### Plots
+##### Histograms of Numerical Dependent Variables
+
+![IMAGE: Histogram - Number of Features](cfs_notebook_files/Tuning_VBounds_HIST_Num_of_Features.svg)
+![IMAGE: Histogram - a\_fitness](cfs_notebook_files/Tuning_VBounds_HIST_a_fitness.svg)
+![IMAGE: Histogram - Training Accuracy](cfs_notebook_files/Tuning_VBounds_HIST_a_score.svg)
+![IMAGE: Histogram - Test Accuracy](cfs_notebook_files/Tuning_VBounds_HIST_test_a_score.svg)
+
+##### Pair Plot of all Relevant Variables
+![IMAGE: Histogram - Pair Plot](cfs_notebook_files/Tuning_VBounds_pairplot.svg)
+
+##### Scatter Plots of Interest
+
+![IMAGE: Scatter - vmin vs. Number of Features](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_num.svg)
+![IMAGE: Scatter - vmin vs. Fitness Score](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_afit.svg)
+![IMAGE: Scatter - vmin vs. Training Accuracy](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_train_score.svg)
+![IMAGE: Scatter - vmin vs. Test Accuracy](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_test_score.svg)
+
+The two most important plots are Figures 1 and 4. There is an extremely strong sigmoid relationship
+between the location of vbounds (the center) and the number of features included in the final
+result. I'm not sure why, maybe an artifact of the logistic function used in the continuous to
+binary position converstion? This is probably what Hassen was talking about when he said that
+a vbounds skewed on the negative side helped reduce the number of features selected. However, this
+is somewhat riduculous, it only gives two options. Additionally, there is no apparent relationship
+between the location of the vbounds center and the resulting TEST accuracy.
+
+Something else to note, the sigmoid relationship in Figure 1 appears to be bleeding into Figures
+2 and 3. Apparently, the number of features has an impact on a\_fitness and training accuracy.
+The impact on a\_fitness is expected (the fitness function included a weight on number
+of features where fewer is better), but I'm surprised that it stratified the testing accuracy.
+Perhaps this is because the fitness function is used to determine velocity?
