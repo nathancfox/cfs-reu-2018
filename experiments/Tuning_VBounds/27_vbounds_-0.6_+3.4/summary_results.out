@@ -1,0 +1,185 @@
+
+
+################################################################################
+#
+# Tuning Velocity Bounds: v_bounds = (-0.6, 3.4)
+# Nathan Fox
+# 6/15/2018 21:51
+#
+################################################################################
+
+
+Parameters
+----------
+  Number of Particles (npart)              : 100
+  Acceleration Constant 1 (c1)             : 2.10
+  Acceleration Constant 2 (c2)             : 2.10
+  Acceleration Constant 3 (c3)             : 2.10
+  Available Features (ndim)                : 190
+  Fitness Weight Constant (alpha)          : 0.80
+  Data Fraction Used As Test (test_size)   : 0.20
+  Position Bounds (x_bounds)               : (-6.0, 6.0)
+  Velocity Bounds (v_bounds)               : (-0.6, 3.4)
+  Inertia Bounds (w_bounds)                : (0.4, 0.9)
+  End Time (t_bounds[1])                   : 300
+
+  feature data : data/data.csv
+  target data  : data/target.csv
+
+Results
+-------
+
+  Archived Best
+  =============
+  Number of Features                       : 78
+  Fitness (a_fitness                       : 0.6825
+  Classifier Score on TRAINING DATA        : 0.7057
+  Classifier Score on TEST DATA            : 0.7733
+
+  10-Fold Cross Validation Scores:
+
+    0.6666666666666666
+    0.6666666666666666
+    0.8
+    0.8
+    0.8
+    0.8
+    0.8
+    0.8
+    0.8
+    0.8
+
+  Selected Features:
+
+    ABL1
+    ABL2
+    AKT2
+    ALK
+    AURKA
+    AURKC
+    BLK
+    BMX
+    BRAF
+    BRSK1
+    CAMK1D
+    CAMK2D
+    CDC42BPB
+    CDK4
+    CHEK2
+    CSNK1A1
+    DAPK1
+    DCLK2
+    DDR2
+    DYRK1A
+    DYRK1B
+    EPHA2
+    EPHA3
+    EPHA4
+    EPHB3
+    EPHB4
+    FER
+    FGFR1
+    FLT3
+    FRK
+    FYN
+    GSK3A
+    GSK3B
+    IKBKB
+    INSR
+    INSRR
+    ITK
+    JAK1
+    JAK2
+    KDR
+    LTK
+    LYN
+    MAPK1
+    MAPK12
+    MAPK14
+    MARK1
+    MKNK2
+    NEK2
+    NEK7
+    NTRK1
+    PAK6
+    PDGFRA
+    PDPK1
+    PIK3CA
+    PIM1
+    PIM2
+    PLK1
+    PRKACA
+    PRKCG
+    PRKD3
+    PRKG2
+    ROCK2
+    ROS1
+    RPS6KA5
+    RPS6KA6
+    SGK1
+    SGK2
+    SGK3
+    SIK2
+    TBK1
+    TEC
+    TEK
+    TNK2
+    TSSK1B
+    TSSK2
+    TTK
+    TYK2
+    YES1
+
+  Runtime                                  : 0h 44m 38s
+
+
+Output Files
+------------
+  var_by_time.csv                : This is a csv file that holds the values of
+                                   several variables as they vary over time
+                                   during a single run of the algorithm. Each
+                                   row represents a single time, each column is
+                                   a single variable. The first row is a header
+                                   row and contains labels for all the columns
+                                   except the first one, which is time. It is
+                                   expected that the time column will be used as
+                                   an index in any DataFrames used to process
+                                   this file and so no column label was given.
+
+  abinary.csv                    : This is a csv file that holds the boolean
+                                   vector returned as the optimum feature subset
+                                   by the algorithm. It is a list of values
+                                   where each value is either a 0 or 1. In the
+                                   order given in the original data set or in
+                                   the label vector, if the value is a 0, the
+                                   feature is excluded. If the value is a 1, the
+                                   feature is included.
+
+  pickled_trained_classifier     : This is the trained classifier using the
+                                   subset, abinary, of the randomly selected
+                                   training data subsetted from the full feature
+                                   data.
+
+  X_train.csv                    : This is the subset of the feature data
+                                   provided that was used as training data for
+                                   the algorithm.
+
+  y_train.csv                    : This is the subset of the target data
+                                   provided that was used as training data for
+                                   the algorithm.
+
+  X_test.csv                     : This is the subset of the feature data
+                                   provided that was used as testing data for
+                                   the algorithm.
+
+  y_test.csv                     : This is the subset of the target data
+                                   provided that was used as testing data for
+                                   the algorithm.
+
+  cpso_script.py                 : This is the version of cpso.py that was used
+                                   to generate this particular run of the
+                                   algorithm.
+
+--------------------------------------------------------------------------------
+  End of Experiment
+--------------------------------------------------------------------------------
