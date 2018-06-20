@@ -12,7 +12,7 @@ Experiment|Date|Summary|Completed
 [Tuning VBounds Range](#0002)|06/16/2018|Testing COMB-PSO on kinase inhibitor data with a varying vbound range.|No
 [Conceptual Brainstorming](#1001)|06/18/2018|Brainstorming and contemplating about the last two experiments.|Yes
 [Polypharm Linkage Hypothesis](#1002)|06/19/2018|Hypothesis about polypharmacologically linked kinases and the results from COMB-PSO.|Yes
-[Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|No
+[Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
 
 ----------------------------------------------------------------------------------------------------
 
@@ -943,6 +943,10 @@ Next, I looked at the same plot, but with training accuracy.
 
 ![IMAGE: Scatter Plot - Training Score vs. Ratio](cfs_notebook_files/Even_Split_Check_SCAT_train_score_ratio.svg)
 
+And test accuracy vs. training accuracy.
+
+![IMAGE: Scatter Plot - Training Score vs. Test Score](cfs_notebook_files/Even_Split_Check_SCAT_train_score_test_score.svg)
+
 I saw that bizarre subset of points that draws a perfect line?? What is that? That has to be an
 artifact of the algorithm right? I subsetted the dataset for where the training score < 0.76
 to grab that unusual subset. I then plotted test score vs. ratio for just this subset. Sure enough.
@@ -978,8 +982,69 @@ this analysis for the [Tuning VBounds - Range](#0002) experiment cohorts where v
 
 #### Tuning VBounds Range - Center = -2.0
 
+Here, I essentially redid the analysis above on the cohort of [Tuning VBounds - Range](#0002) where
+vcenter = -2.0. This dataset was about half as large.
 
+Again, I first looked at Ratio vs. Test Score.
 
+![IMAGE: Scatter Plot - Test Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_test_score_ratio.svg)
+
+Then Ratio vs. Training Score
+
+![IMAGE: Scatter Plot - Training Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_train_score_ratio.svg)
+
+Curiously, I did not see anything obviously linear. However, when I decided to subset for
+vcenter > 0.0, I realized that this dataset is guaranteed by design for vcenter = -2.0.
+I compared test and training score, expecting to find nothhing, however this looked more
+like what I saw early. I checked the Pearson correlation coefficients, however and the results
+were not nothing.
+
+![IMAGE: Scatter Plot - Test Score vs. Training Score](cfs_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_train_score_test_score.svg)
+
+Comparison|Pearson Correlation
+----------|-------------------
+TEST Score vs. Ratio|-0.3205
+TRAIN Score vs. Ratio|0.4016
+TEST vs. TRAIN|-0.6958
+
+#### Tuning VBounds Range - Center = +2.0
+
+Again, I'm repeating the analysis with a different cohort. This one, I expect to see results
+similar to Tuning VBounds because here, the center is guaranteed to be greater than 0.
+
+![IMAGE: Scatter Plot - Test Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_test_score_ratio.svg)
+
+![IMAGE: Scatter Plot - Training Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_train_score_ratio.svg)
+
+![IMAGE: Scatter Plot - Test Score vs. Training Score](cfs_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_train_score_test_score.svg)
+
+Comparison|Pearson Correlation
+----------|-------------------
+TEST Score vs. Ratio|-0.4036
+TRAIN Score vs. Ratio|0.3930
+TEST vs. TRAIN|-0.9812
+
+Here, we have that same phenomenon, but slightly differently.
+
+### Conclusions
+
+Worryingly, all three datasets displayed a moderate to extremely strong negative Pearson
+Correlation between test score and training score. This is a huge problem. It should be a positive
+relationship so that a good training score indicates a decent or at least better test score.
+This is such a strong relationship, I suspect there is a flaw in the approach. In the first
+dataset, there was also a perfect correspondence with the ratio of hits/total labels. After some
+looking through documentation, I discovered a keyword argument for the
+`sklearn.model_selection.train_test_split ()` method called `stratify`. I should modify my
+algorithm code to pass the target.csv array to the `stratify` argument whenever the data is split.
+
+I confirmed that this argument behaves like I believe it to with a Python script that calls
+`sklearn.model_selection.train_test_split()` 20 times on the data.csv and target.csv data
+files, once with `stratify=None` and once with `stratify=np.loadtxt('target.csv')`.
+
+I am unsure why this behavior was observed. I believe the reliance on ratio can be ablated
+by calling the `stratify` argument. However, I am stuck on why there is such a strong negative
+relationship between test\_score and training\_score. It was perfect when vcenter > 0, but
+even in vcenter = -2.0, the correlation score was still -0.6958.
 
 ----------------------------------------------------------------------------------------------------
 
