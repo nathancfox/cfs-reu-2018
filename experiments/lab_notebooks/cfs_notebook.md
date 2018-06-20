@@ -549,10 +549,33 @@ and quit if v_bounds[1]-v_bounds[0] <= 0, so all of the vrange = 0.0 data points
 stop parameter is excluded. So I'm missing a data point from the end where vrange = 8.0. I don't
 think that either of these mistakes invalidated my data, so I proceeded normally.
 
-NOTE: Something about some of the cohorts is causing a negative correlation between TRAINING
-score and TEST score. Explore later. Is it a third party like num_of_features?
+The analysis for each cohort consisted of a simple pair plot and Pearson's correlation coefficient
+for the following variables: \[vrange, num\_of\_features, a\_fitness, training\_score, and
+test\_score\]. To enhance readability, they can be found at the bottom of the Analysis.ipynb
+notebook in the analysis/ folder for each cohort.
+
+Main Observations:
+
+1. When vcenter > 0, there is a strong negative correlation between test\_score and
+   training\_score.
+2. There is no correlation between vrange and test\_score, regardless of vcenter.
+3. There is still an extreme relationship between vcenter and num\_of\_features.
+   As observed in [Tuning VBounds](#0001), 2-3 features are returned if vcenter < 0,
+   70-80 features are returned if vcenter > 0, and a steep curve connects the two plateaus,
+   centered on vcenter = 0.0.
 
 ### Conclusions/Next Questions
+
+There is clearly a huge pattern in the data that suggests that vcenter has an enormous effect
+on the number of features returned. On the one hand, this makes sense: velocity determines the
+propensity for a feature to be included/excluded and a negative velocity tends towards exclusion.
+Thus, if vcenter < 0, then velocities have a higher likelihood of being negative. However, I wish
+it wasn't such a steep, dramatic shift. This doesn't give me much flexibility in the range that
+I want: 5-30 features.
+
+Additionally, when vcenter > 0, there is a near perfect negative relationship between test\_score
+and training\_score. I don't understand this. I'll do some follow up work to confirm and explore
+this.
 
 ----------------------------------------------------------------------------------------------------
 
@@ -1045,6 +1068,14 @@ I am unsure why this behavior was observed. I believe the reliance on ratio can 
 by calling the `stratify` argument. However, I am stuck on why there is such a strong negative
 relationship between test\_score and training\_score. It was perfect when vcenter > 0, but
 even in vcenter = -2.0, the correlation score was still -0.6958.
+
+I went back and looked at the pair plot in [Tuning VBounds](#0001). I saw the same behavior
+in training\_accuracy vs. test\_accuracy. I looked closer and realized that the subset of points
+that display perfect linearity are the same subset where vcenter > 0.0. However, this is also
+the same subset with a large number of selected features (top part of the sigmoid curve).
+Unfortunately, although there is a relationship between vcenter and these points, there is no
+discernible correlation between vcenter and the order in which these points came out. See vmin
+vs. training\_accuracy in the same pair plot.
 
 ----------------------------------------------------------------------------------------------------
 
