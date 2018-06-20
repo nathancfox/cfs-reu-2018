@@ -21,13 +21,7 @@ inducing, based on phenotypic assay data and in vitro kinase inhibition profiles
 ### Branches
 **master:** Actual experiments and analysis using stable scripts/implementation.
 
-**cpso\_dev:** Development of the Python implementation of the COMB-PSO algorithm.
-
 **eda:** Exploratory analysis of the kinase inhibitor data.
 
-**exp\_design:** Designing wrapper scripts and reporting functionality to run
-                 experiments with the particle/swarm classes.
-
-The main differences are all found in the pso/ folder. The master branch runs all
-experiments/analyses in the experiments/ folder. The lab notebook can be found
-in experiments/lab_notebooks/cfs_notebook.md 
+The master branch runs all experiments/analyses in the experiments/ folder.
+The lab notebook can be found in experiments/lab_notebooks/cfs_notebook.md 
