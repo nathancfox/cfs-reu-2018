@@ -554,7 +554,34 @@ for the following variables: \[vrange, num\_of\_features, a\_fitness, training\_
 test\_score\]. To enhance readability, they can be found at the bottom of the Analysis.ipynb
 notebook in the analysis/ folder for each cohort.
 
-Main Observations:
+#### Center = -4.0
+
+![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-4.0_pairplot.svg)
+![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-4.0_pearson.png)
+
+#### Center = -2.0
+
+![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-2.0_pairplot.svg)
+![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-2.0_pearson.png)
+
+#### Center = 0.0
+
+![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_0.0_pairplot.svg)
+![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_0.0_pearson.png)
+
+#### Center = +2.0
+
+![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+2.0_pairplot.svg)
+![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+2.0_pearson.png)
+
+#### Center = +4.0
+
+![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+4.0_pairplot.svg)
+![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+4.0_pearson.png)
+
+----------------------------------------------------------------------------------------------------
+
+#### Main Observations:
 
 1. When vcenter > 0, there is a strong negative correlation between test\_score and
    training\_score.
