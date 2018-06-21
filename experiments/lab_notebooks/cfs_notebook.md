@@ -9,7 +9,7 @@
 Experiment|Date|Summary|Completed
 :---------|----|:------|---------
 [Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|Yes
-[Tuning VBounds Range](#0002)|06/16/2018|Testing COMB-PSO on kinase inhibitor data with a varying vbound range.|No
+[Tuning VBounds - Range](#0002)|06/16/2018|Testing COMB-PSO on kinase inhibitor data with a varying vbound range.|No
 [Conceptual Brainstorming](#1001)|06/18/2018|Brainstorming and contemplating about the last two experiments.|Yes
 [Polypharm Linkage Hypothesis](#1002)|06/19/2018|Hypothesis about polypharmacologically linked kinases and the results from COMB-PSO.|Yes
 [Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
