@@ -5,7 +5,7 @@
 
 **Supervisors:** Vance Lemmon, Stefan Wuchty
 
-## Table of Contents
+## Table of Contents <a name="000"></a>
 Experiment|Date|Summary|Completed
 :---------|----|:------|---------
 [Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|Yes
@@ -215,6 +215,8 @@ the classification accuracy on TRAINING data.
 
 Next questions include whether or not I can tune the y offset of the sigmoid relationship
 between vmin and number of features, or if necessary how to ameliorate it.
+
+[Return to top](#0000)
 
 ----------------------------------------------------------------------------------------------------
 
@@ -604,6 +606,8 @@ Additionally, when vcenter > 0, there is a near perfect negative relationship be
 and training\_score. I don't understand this. I'll do some follow up work to confirm and explore
 this.
 
+[Return to top](#0000)
+
 ----------------------------------------------------------------------------------------------------
 
 ## Conceptual Brainstorming <a name="1001"></a>
@@ -656,6 +660,8 @@ Things to do:
 I want to test that last bullet point on a different dataset. I want a phenotype that is
 extremely well characterized and has the full regulation network known. Thus, I can test for
 my theory on single branch vs intersection nodes.
+
+[Return to top](#0000)
 
 ----------------------------------------------------------------------------------------------------
 
@@ -713,6 +719,8 @@ Target 3 is unrelated. Thus, the ideal inhibition profile represses Families 2 a
 
 I hypothesize that the COMB-PSO algorithm, if working effectively, will reliably give back
 kinases from these two families, but not the same kinases each time.
+
+[Return to top](#0000)
 
 ----------------------------------------------------------------------------------------------------
 
@@ -1103,6 +1111,8 @@ the same subset with a large number of selected features (top part of the sigmoi
 Unfortunately, although there is a relationship between vcenter and these points, there is no
 discernible correlation between vcenter and the order in which these points came out. See vmin
 vs. training\_accuracy in the same pair plot.
+
+[Return to top](#0000)
 
 ----------------------------------------------------------------------------------------------------
 
