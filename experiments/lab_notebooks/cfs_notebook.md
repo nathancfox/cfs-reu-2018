@@ -5,7 +5,7 @@
 
 **Supervisors:** Vance Lemmon, Stefan Wuchty
 
-## Table of Contents <a name="000"></a>
+## Table of Contents <a name="0000"></a>
 Experiment|Date|Summary|Completed
 :---------|----|:------|---------
 [Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|Yes
