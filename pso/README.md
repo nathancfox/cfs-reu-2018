@@ -12,3 +12,6 @@ COMB\_Swarm.
 
 **cpso.py:** Wrapper script that runs a single instance of the COMB-PSO
 algorithm, using cpso_particle.py and cpso_swarm.py.
+
+**exp_template.py:** Example python script that dynamically generates
+Pegasus Supercomputer scripts to repeatedly call cpso.py for a single experiment.
