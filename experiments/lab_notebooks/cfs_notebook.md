@@ -1232,9 +1232,9 @@ I plotted my results in a full graph, and then a time subset. The first graph is
 all 100 particles over time. The y-axis shows the scalar mean of their continuous velocity
 vectors at each time step. The second graph shows the same data, but only for t = 0 to t = 7.
 
-![IMAGE: Mean Velocity Over Time FULL](cfs_notebook_files/Mean_Particle_Velocity_PLOT_Full.svg)
+![IMAGE: Mean Velocity Over Time FULL](cfs_notebook_files/Mean_Particle_Velocity_PLOT_Full.png)
 
-![IMAGE: Mean Velocity Over Time t = 7](cfs_notebook_files/Mean_Particle_Velocity_PLOT_t_7.svg)
+![IMAGE: Mean Velocity Over Time t = 7](cfs_notebook_files/Mean_Particle_Velocity_PLOT_t_7.png)
 
 ### Conclusions/Next Questions
 I can clearly see that all 100 particles are exhibiting the same behavior. The problem is that
