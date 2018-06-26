@@ -13,6 +13,7 @@ Experiment|Date|Summary|Completed
 [Conceptual Brainstorming](#1001)|06/18/2018|Brainstorming and contemplating about the last two experiments.|Yes
 [Polypharm Linkage Hypothesis](#1002)|06/19/2018|Hypothesis about polypharmacologically linked kinases and the results from COMB-PSO.|Yes
 [Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
+[Mean Particle Velocity](#0003)|06/26/2018|Characterizing particle velocities.|No
 
 ----------------------------------------------------------------------------------------------------
 
@@ -1116,7 +1117,137 @@ vs. training\_accuracy in the same pair plot.
 
 ----------------------------------------------------------------------------------------------------
 
-## TITLE <a name="0003"></a>
+## Mean Particle Velocity <a name="0003"></a>
+June 26, 2018
+
+### Question
+Where do each particle's velocities fall in the v\_bounds parameter over time?
+
+### Hypothesis
+With input from Hassan, I hypothesize that each particle's velocity values tend towards the
+extremes, min and max.
+
+### Experiment Design
+To test this, I will run the algorithm 3 times, each time with the same parameters, using
+a parameter set that I have used in a previous experiment for consistency. At each time step,
+an updated version of `COMB_Swarm` will record each particles mean velocity as a scalar into a
+2D numpy array inside the `var_by_time` dictionary called `velocities`. Each row of the array
+represents a time step, each column represents a particle.
+
+Parameter|Value
+:--------|-----
+Number of Particles (npart)|100
+Number of Features (ndim)|190
+Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
+Alpha (alpha)|0.8
+Test Size (testsize)|0.2
+X Bounds (x\_bounds)|(-6.0, 6.0)
+V Bounds (v\_bounds)|(-4.0, 0.25)
+W Bounds (w\_bounds|(0.4, 0.9)
+Time (t\_bounds[1])|150
+
+#### Input
+Feature Data: data/data.csv
+
+Target Data: data/target.csv
+
+Feature Labels: data/feature\_labels.csv
+
+#### Output
+3 directories, named XX\_report\_velocities/ where XX is the iteration (XX ϵ \[00, 01, 02\]).
+Each directory will have the following output files inside:
+
+* abinary.csv
+* cpso\_script.py
+* error.txt
+* output.txt
+* job\_script
+* pickled\_trained\_classifier
+* summary\_results.out
+* var\_by\_time.csv
+* X\_train.csv
+* y\_train.csv
+* X\_test.csv
+* y\_test.csv
+
+pickled\_trained\_classifier and all \*.csv files are variable outputs at the end of the
+algorithm. summary\_results.out is a comprehensive, auto-generated report. error.txt and
+output.txt are stderr and stdout for the job. cpso\_script.py and job\_script are the
+scripts used to run this experiment.
+
+#### Running the Experiment
+
+File List:
+
+* cpso\_particle.py
+* cpso\_swarm.py
+* cpso.py
+* experiment\_script.py
+
+Directory List:
+
+* analysis/
+* data/
+
+cpso\_particle.py and cpso\_swarm.py respectively hold COMB\_Particle and COMB\_Swarm classes
+used by cpso.py to run an experiment. The actual experiment code is called by job\_script
+for each iteration from within experiment\_script.py which generates and runs all jobs.
+
+data/ holds the three data input files for the experiment. analysis/ holds anything processed
+after the experiment was run: processed data, analysis notebooks, generated figures, etc.
+
+This experiment was run with a series of dynamically created/called background jobs on Nathan
+Fox's personal computer, named redgray, NIC MAC Address (AC:ED:5C:38:91:C2).
+
+#### EXPERIMENT SCRIPT
+```
+import os
+  
+for i in range(3):
+    filename = '{:02}_report_velocities'.format(i)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('\n')
+        f.write('function notifyme () {\n')
+        f.write('\tstart=$(date +%s)\n')
+        f.write('\t"$@"\n')
+        f.write('\tnotify-send "I\'m Finished!" "\\"$(echo $@)\\" took $(($(date +%s) - start)) seconds to finish."\n')
+        f.write('}\n')
+        f.write('\n')
+        f.write('notifyme python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds -4.0 0.25 '
+              + '--wbounds 0.4 0.9 --time 150 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Mean Particle Velocity - {:02}" '.format(i)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+              + '\n')
+    os.system('chmod +x {}/job_script'.format(filename))
+    os.system('{}/job_script > {}/output.txt 2> {}/error.txt &'.format(filename, filename, filename))
+```
+
+### Results/Analysis
+I plotted my results in a full graph, and then a time subset. The first graph is a progression of
+all 100 particles over time. The y-axis shows the scalar mean of their continuous velocity
+vectors at each time step. The second graph shows the same data, but only for t = 0 to t = 7.
+
+![IMAGE: Mean Velocity Over Time FULL](cfs_notebook_files/Mean_Particle_Velocity_PLOT_Full.svg)
+
+![IMAGE: Mean Velocity Over Time t = 7](cfs_notebook_files/Mean_Particle_Velocity_PLOT_t_7.svg)
+
+### Conclusions/Next Questions
+I can clearly see that all 100 particles are exhibiting the same behavior. The problem is that
+I didn't think clearly through my method. The mean of a vector doesn't tell me anything about
+the spread. I'm interested in the frequency of extreme values, not the mean. So this data is
+interesting, but worthless to answer my original question. I need to redo this experiment with
+a different approach.
+
+[Return to top](#0000)
+
+----------------------------------------------------------------------------------------------------
+
+##  <a name="0004"></a>
 DATE
 
 ### Question
@@ -1147,4 +1278,7 @@ Directory List:
 
 ### Conclusions/Next Questions
 
+[Return to top](#0000)
+
 ----------------------------------------------------------------------------------------------------
+

@@ -260,7 +260,8 @@ class COMB_Swarm:
                             'g_fitness': np.zeros(t_bounds[1]),
                             'g_score' : np.zeros(t_bounds[1]),
                             'a_fitness': np.zeros(t_bounds[1]),
-                            'a_score': np.zeros(t_bounds[1])
+                            'a_score': np.zeros(t_bounds[1]),
+                            'velocities' : np.zeros((t_bounds[1], ndim))
                            }
 
     def initialize_particles(self):
@@ -314,6 +315,7 @@ class COMB_Swarm:
             self.swarm.append(COMB_Particle(self.c1, self.c2, self.c3,
                                             self.ndim, self.x_bounds,
                                             self.v_bounds, self.w_bounds))
+            self.var_by_time['velocities'][0, i] = self.swarm[i].v.mean()
             f, f_score = self.eval_fitness(self.swarm[i].b)
             # NOTE REFERENCE : See docstring above.
             self.swarm[i].p_fitness = f
@@ -366,11 +368,13 @@ class COMB_Swarm:
         """
         for i in range(1, self.t_bounds[1]):
             self.t = i
+            counter = 0
             for p in self.swarm:
                 p.update_inertia(self.gbinary)
                 p.update_velocity(self.gbest, self.abest)
                 p.update_position()
                 p.update_binary_position()
+                self.var_by_time['velocities'][i, counter] = p.v.mean()
                 f, f_score = self.eval_fitness(p.b)
                 if f > p.p_fitness:
                     p.pbest = p.x.copy()
@@ -388,6 +392,7 @@ class COMB_Swarm:
                     self.gbinary = p.b.copy()
                     self.g_fitness = f
                     self.g_score = f_score
+                counter += 1
             if self.g_fitness > self.a_fitness:
                 self.abest = self.gbest.copy()
                 self.abinary = self.gbinary.copy()
