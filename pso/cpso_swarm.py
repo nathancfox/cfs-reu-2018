@@ -30,7 +30,6 @@
 import numpy as np
 from scipy.special import expit
 from sklearn import svm
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from cpso_particle import COMB_Particle
 
@@ -109,28 +108,6 @@ class COMB_Swarm:
     target : 1-Dimensional ndarray, size number_of_data_points; holds the
              correct classifications for the data points in data.
 
-    test_size : float, test_size ϵ (0.0, 1.0); denotes the percentage of data
-                that should be reserved to use for final evaluation.
-
-    X_train : 2-Dimensional ndarray,
-              size (1-test_size*number_of_data_points, ndim); feature data
-              to be used for training.
-
-    X_test : 2-Dimensional ndarray,
-             size (test_size*number_of_data_points, ndim); feature data to be
-             use for final evaluation.
-
-    y_train : 1-Dimensional ndarray,
-              size (1-test_size)*number_of_data_points;
-              correct classifications of X_train to be used in training.
-
-    y_test : 1-Dimensional ndarray, size test_size*number_of_data_points;
-             correct classifications of X_test to be used for final evaluation.
-
-    final_scores : n-Dimensional ndarray, size K where K-Fold Cross Validation
-                   is being used for evaluation. Used to hold the CV scores
-                   from the reserved test data that was unused during 
-                   COMB-PSO.
 
     Functions
     ---------
@@ -149,11 +126,9 @@ class COMB_Swarm:
     test_classify : Returns classification performance for a given position.
 
     eval_fitness : Evaluates the fitness function for a position vector.
-
-    final_eval : Runs a final classification evaluation on reserved test data.
     """
     
-    def __init__(self, npart, c1, c2, c3, ndim, alpha, test_size,
+    def __init__(self, npart, c1, c2, c3, ndim, alpha,
                  x_bounds, v_bounds, w_bounds, t_bounds,
                  data_path, target_path):
         """Initialize the COMB_Swarm object.
@@ -184,9 +159,6 @@ class COMB_Swarm:
                 = 1.0, classification performance is the only contributing
                 factor to fitness. If alpha = 0.0, minimizing the number
                 of features is the only contributing factor to fitness.
-
-        test_size : float, ϵ [0.0, 1.0]; designates the portion of the data
-                    to be reserved for final testing.
 
         x_bounds : tuple of floats, size 2; x_bounds[0] is the minimum value
                    that an element of COMB_Particle.x can be; x_bounds[1]
@@ -250,18 +222,12 @@ class COMB_Swarm:
         self.clf = svm.SVC()
         self.data = np.loadtxt(data_path, dtype=np.float64, delimiter=',')
         self.target = np.loadtxt(target_path, dtype=np.int8, delimiter=',')
-        self.test_size = test_size
-        (self.X_train, self.X_test,
-         self.y_train, self.y_test) = train_test_split(self.data, self.target,
-                                                       test_size=self.test_size)
-        self.final_scores = np.zeros(10)
         self.var_by_time = {
                             'num_features': np.zeros(t_bounds[1]).astype(int),
                             'g_fitness': np.zeros(t_bounds[1]),
                             'g_score' : np.zeros(t_bounds[1]),
                             'a_fitness': np.zeros(t_bounds[1]),
                             'a_score': np.zeros(t_bounds[1]),
-                            'velocities' : np.zeros((t_bounds[1], ndim))
                            }
 
     def initialize_particles(self):
@@ -315,7 +281,6 @@ class COMB_Swarm:
             self.swarm.append(COMB_Particle(self.c1, self.c2, self.c3,
                                             self.ndim, self.x_bounds,
                                             self.v_bounds, self.w_bounds))
-            self.var_by_time['velocities'][0, i] = self.swarm[i].v.mean()
             f, f_score = self.eval_fitness(self.swarm[i].b)
             # NOTE REFERENCE : See docstring above.
             self.swarm[i].p_fitness = f
@@ -359,22 +324,17 @@ class COMB_Swarm:
         -------
         None
 
-        abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
-                  best position. 
-
         Raises
         ------
         None
         """
         for i in range(1, self.t_bounds[1]):
             self.t = i
-            counter = 0
             for p in self.swarm:
                 p.update_inertia(self.gbinary)
                 p.update_velocity(self.gbest, self.abest)
                 p.update_position()
                 p.update_binary_position()
-                self.var_by_time['velocities'][i, counter] = p.v.mean()
                 f, f_score = self.eval_fitness(p.b)
                 if f > p.p_fitness:
                     p.pbest = p.x.copy()
@@ -392,7 +352,6 @@ class COMB_Swarm:
                     self.gbinary = p.b.copy()
                     self.g_fitness = f
                     self.g_score = f_score
-                counter += 1
             if self.g_fitness > self.a_fitness:
                 self.abest = self.gbest.copy()
                 self.abinary = self.gbinary.copy()
@@ -493,16 +452,16 @@ class COMB_Swarm:
         
         Returns
         -------
-        scores.mean() : The mean of the classification accuracies returned
-                        by the 10-fold cross validation.
+        scores : The classification accuracies returned
+                 by the 10-fold cross validation.
 
         Raises
         ------
         None
         """
-        scores = cross_val_score(self.clf, self.X_train[:, b],
-                                 y=self.y_train, cv=10)
-        return scores.mean()
+        scores = cross_val_score(self.clf, self.data[:, b],
+                                 y=self.target, cv=10)
+        return scores
         
     def eval_fitness(self, b):
         """Evaluate the fitness of the current position vector.
@@ -545,7 +504,7 @@ class COMB_Swarm:
             self.all_false += 1
             return 0.0, 0.0 
         # clf_perf is the same as Pb in the above equation
-        clf_perf = self.test_classify(b)
+        clf_perf = self.test_classify(b).mean()
         f = ((self.alpha*clf_perf)
              + (   (1-self.alpha)
                  * ((self.ndim-np.count_nonzero(b)) / self.ndim)
@@ -554,29 +513,3 @@ class COMB_Swarm:
         # print(str(f)+'\n'+str(clf_perf))
         # sys.exit(0)
         return f, clf_perf
-
-    def final_eval(self):
-        """Perform final evaluation of best position.
-
-        Assigns the results from a final cross-validation on data that
-        was reserved during creation of the dataset to final_scores.
-        This data was not used at all during the entire COMB-PSO
-        algorithm and is used to test the actual accuracy of the
-        feature subset resulting from the algorithm.
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        None
-        """
-        self.clf.fit(self.X_train[:, self.abinary], self.y_train)
-        self.final_scores = cross_val_score(self.clf,
-                                            self.X_test[:, self.abinary],
-                                            self.y_test, cv=10)

@@ -18,7 +18,7 @@ It outputs raw data as well as a detailed report in summary_report.out.
 Example call:
 
     python3 cpso.py --npart 100 --ndim 2000 -c 2.0 2.0 2.0 -a 0.8
-    --testsize 0.3 --xbounds -6.0 6.0 --vbounds -4.0 1.0 --wbounds 0.4 0.9
+    --xbounds -6.0 6.0 --vbounds -4.0 1.0 --wbounds 0.4 0.9
     -t 100 --data path/to/feature/data.csv --target path/to/target/data.csv
     --labels path/to/feature/labels.csv --expname Test_Experiment_1
     --author "Nathan Fox" --outpath myoutputdirectory/ --copyscript
@@ -86,8 +86,6 @@ parser.add_argument('-c', '--constants', nargs=3, type=float, dest='c',
                          + ' for velocity equation'))
 parser.add_argument('-a', '--alpha', type=float, dest='alpha', required=True,
                     help='α in the fitness equation, weight factor')
-parser.add_argument('--testsize', type=float, dest='test_size', required=True,
-                    help='Fraction of feature data reserved for final testing')
 parser.add_argument('--xbounds', nargs=2, type=float, dest='x_bounds',
                     required=True, help='2 arguments, min/max for position')
 parser.add_argument('--vbounds', nargs=2, type=float, dest='v_bounds',
@@ -125,9 +123,6 @@ if args.ndim <= 0:
 if args.alpha < 0.0 or args.alpha > 1.0:
     err_flag = True
     print('Error: -a, --alpha must be in [0.0, 1.0]')
-if args.test_size <= 0.0 or args.test_size >= 1.0:
-    err_flag = True
-    print('Error: --testsize must be in (0.0, 1.0)')
 if args.x_bounds[0] >= args.x_bounds[1]:
     err_flag = True
     print('Error: --xbounds; first argument must',
@@ -172,7 +167,7 @@ args.t_bounds = (0, args.t)
 
 # Downstream file saving code expects directories to end with a '/'
 if args.output_path[-1] != '/':
-    args.output_path.append('/')
+    args.output_path += '/'
 
 if args.copyscript:
     import shutil
@@ -180,12 +175,11 @@ if args.copyscript:
 
 # Initialize swarm and execute algorithm
 s = COMB_Swarm(args.npart, args.c[0], args.c[1], args.c[2], args.ndim,
-               args.alpha, args.test_size,
+               args.alpha,
                args.x_bounds, args.v_bounds, args.w_bounds, args.t_bounds,
                args.data_path, args.target_path)
 s.initialize_particles()
 s.execute_search()
-s.final_eval()
 # Collect and process data from inside the swarm
 data = []
 columns = []
@@ -195,13 +189,9 @@ for k, v in s.var_by_time.items():
 var_by_time = pd.DataFrame(data=np.transpose(data), columns=columns)
 var_by_time.to_csv(args.output_path+'var_by_time.csv')
 np.savetxt(args.output_path+'abinary.csv', s.abinary, delimiter=',')
-np.savetxt(args.output_path+'X_train.csv', s.X_train, delimiter=',')
-np.savetxt(args.output_path+'y_train.csv', s.y_train, delimiter=',')
-np.savetxt(args.output_path+'X_test.csv', s.X_test, delimiter=',')
-np.savetxt(args.output_path+'y_test.csv', s.y_test, delimiter=',')
 
 with open(args.output_path+'pickled_trained_classifier', 'wb') as classifier:
-    s.clf.fit(s.X_train[:, s.abinary], s.y_train)
+    s.clf.fit(s.data[:, s.abinary], s.target)
     pickle.dump(s.clf, classifier)
 
 end = time.time()
@@ -227,8 +217,6 @@ with open(args.output_path+'summary_results.out', 'a') as f:
     f.write('  {:40} : {:d}\n'.format('Available Features (ndim)', args.ndim))
     f.write('  {:40} : {:.2f}\n'.format('Fitness Weight Constant (alpha)',
                                     args.alpha))
-    f.write('  {:40} : {:.2f}\n'.format('Data Fraction Used As Test (test_size)',
-                                    args.test_size))
     f.write('  {:40} : {}\n'.format('Position Bounds (x_bounds)',
                                 str(args.x_bounds)))
     f.write('  {:40} : {}\n'.format('Velocity Bounds (v_bounds)',
@@ -247,15 +235,14 @@ with open(args.output_path+'summary_results.out', 'a') as f:
     f.write('  {:40} : {:d}\n'.format('Number of Features',
                                   np.count_nonzero(s.abinary)))
     f.write('  {:40} : {:.4f}\n'.format('Fitness (a_fitness', s.a_fitness))
-    f.write('  {:40} : {:.4f}\n'.format('Classifier Score on TRAINING DATA',
+    f.write('  {:40} : {:.4f}\n'.format('Classifier Score',
                                         s.a_score))
-    f.write('  {:40} : {:.4f}\n'.format('Classifier Score on TEST DATA',
-                                        s.final_scores.mean()))
     f.write('\n')
-    f.write('  10-Fold Cross Validation Scores:\n')
+    f.write('  Final Check 10-Fold Cross Validation Scores:\n')
     f.write('\n')
-    for i in range(len(s.final_scores)):
-        f.write('    {}\n'.format(s.final_scores[i]))
+    rechecked = s.test_classify(s.abinary)
+    for i in range(len(rechecked)):
+        f.write('    {}\n'.format(rechecked[i]))
     f.write('\n')
     f.write('  Selected Features:\n\n')
     for i in range(len(args.feature_labels)):
@@ -302,37 +289,14 @@ with open(args.output_path+'summary_results.out', 'a') as f:
     for i in range(1, len(tempdesc)):
         f.write(' '*35 + tempdesc[i]+'\n')
     f.write('\n')
-    f.write('  {:30} : '.format('X_train.csv'))
-    tempdesc = ('This is the subset of the feature data provided that was'
-              + ' used as training data for the algorithm.')
-    tempdesc = tw.wrap(tempdesc, width=45)
-    f.write(tempdesc[0]+'\n')
-    for i in range(1, len(tempdesc)):
-        f.write(' '*35 + tempdesc[i]+'\n')
-    f.write('\n')
-    f.write('  {:30} : '.format('y_train.csv'))
-    tempdesc = ('This is the subset of the target data provided that was'
-              + ' used as training data for the algorithm.')
-    tempdesc = tw.wrap(tempdesc, width=45)
-    f.write(tempdesc[0]+'\n')
-    for i in range(1, len(tempdesc)):
-        f.write(' '*35 + tempdesc[i]+'\n')
-    f.write('\n')
-    f.write('  {:30} : '.format('X_test.csv'))
-    tempdesc = ('This is the subset of the feature data provided that was'
-              + ' used as testing data for the algorithm.')
-    tempdesc = tw.wrap(tempdesc, width=45)
-    f.write(tempdesc[0]+'\n')
-    for i in range(1, len(tempdesc)):
-        f.write(' '*35 + tempdesc[i]+'\n')
-    f.write('\n')
-    f.write('  {:30} : '.format('y_test.csv'))
-    tempdesc = ('This is the subset of the target data provided that was'
-              + ' used as testing data for the algorithm.')
-    tempdesc = tw.wrap(tempdesc, width=45)
-    f.write(tempdesc[0]+'\n')
-    for i in range(1, len(tempdesc)):
-        f.write(' '*35 + tempdesc[i]+'\n')
+    if args.copyscript:
+        f.write('  {:30} : '.format('cpso_script.py'))
+        tempdesc = ('This is the version of cpso.py that was used to generate '
+                + 'this particular run of the algorithm.')
+        tempdesc = tw.wrap(tempdesc, width=45)
+        f.write(tempdesc[0]+'\n')
+        for i in range(1, len(tempdesc)):
+            f.write(' '*35 + tempdesc[i]+'\n')
     f.write('\n')
     f.write('-'*80+'\n')
     f.write('  End of Experiment\n')
