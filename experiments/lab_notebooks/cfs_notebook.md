@@ -1568,9 +1568,9 @@ for i in range(3):
 I plotted both the Sum of Particle Distances from the Center for the swarm at each time point
 and the Mean Particle Distance for the swarm at each time point.
 
-![IMAGE: Plot - Sum of Distances](cfs_notebook_files/Swarm_Convergence_PLOT_Sum_Distance.svg')
+![IMAGE: Plot - Sum of Distances](cfs_notebook_files/Swarm_Convergence_PLOT_Sum_Distance.svg)
 
-![IMAGE: Plot - Mean Distance](cfs_notebook_files/Swarm_Convergence_PLOT_Mean_Distance.svg')
+![IMAGE: Plot - Mean Distance](cfs_notebook_files/Swarm_Convergence_PLOT_Mean_Distance.svg)
 
 ### Conclusions/Next Questions
 
