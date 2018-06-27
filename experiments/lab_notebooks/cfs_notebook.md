@@ -15,7 +15,7 @@ Experiment|Date|Summary|Completed
 [Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
 [Mean Particle Velocity](#0003)|06/26/2018|Characterizing particle velocities.|Yes
 [Mean Particle Velocity - The Sequel](#0004)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
-[Swarm Convergence](#0005)|06/27/2018|Checking for convergence over time|No
+[Swarm Convergence](#0005)|06/27/2018|Checking for convergence over time|Yes
 
 ----------------------------------------------------------------------------------------------------
 
