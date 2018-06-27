@@ -14,7 +14,8 @@ Experiment|Date|Summary|Completed
 [Polypharm Linkage Hypothesis](#1002)|06/19/2018|Hypothesis about polypharmacologically linked kinases and the results from COMB-PSO.|Yes
 [Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
 [Mean Particle Velocity](#0003)|06/26/2018|Characterizing particle velocities.|Yes
-[Mean Particle Velocity - The Sequel](#0004)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|No
+[Mean Particle Velocity - The Sequel](#0004)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
+[Swarm Convergence](#0005)|06/27/2018|Checking for convergence over time|No
 
 ----------------------------------------------------------------------------------------------------
 
@@ -1165,6 +1166,7 @@ Each directory will have the following output files inside:
 * job\_script
 * pickled\_trained\_classifier
 * summary\_results.out
+* particle\_velocities.csv
 * var\_by\_time.csv
 * X\_train.csv
 * y\_train.csv
@@ -1297,6 +1299,7 @@ Each directory will have the following output files inside:
 * pickled\_trained\_classifier
 * summary\_results.out
 * var\_by\_time.csv
+* particle\_velocities.csv
 * X\_train.csv
 * y\_train.csv
 * X\_test.csv
@@ -1361,14 +1364,225 @@ for i in range(3):
 ```
 
 ### Results/Analysis
+First, I plotted all 100 particles for "Velocity Extremeness" over time, to get a sense of the
+variance in behavior. Are they all doing the same thing? Any clustering? Outliers? This of course
+produced an unreadable graph, but that was the point.
+
+![IMAGE: Velocity Extremeness of Full Swarm](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Full.png)
+
+Next, I plotted the same data, but for the first 3 particles. Because each particle's initial
+position/velocity is random, it was unnecessary to choose a random sample.
+
+![IMAGE: Velocity Extremeness of Three Particles](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Three.png)
+
+This was still hard to read, so I also plotted the path of just one particle.
+
+![IMAGE: Velocity Extremeness of One Particle](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_One.png)
 
 ### Conclusions/Next Questions
+From these plots, it's apparent that the normal behavior for a particle under these conditions
+is to drastically swing back and forth between an extreme velocity and a relatively moderate
+velocity. However, after the first 10 time steps, no particle ever dropped below 0.2. This means
+that every particle always had at least 20% of its features in an extreme velocity state. I
+think that this is not ideal and that the particles should display more moderate velocity,
+especially considering that they are trying to converge, not blindly run around.
+
+This raises two possibilities:
+
+1. The swarm is failing to converge.
+2. The swarm is unable to converge.
+
+If the 1st possibility is the answer, then the other variables by time should be examined.
+It may be that 150 was too short for the swarm to find an optimum. However, it may also be that
+there are many equivalent optima and the swarm is failing to converge, yet failing to improve.
+
+If the second possibility is the answer, there is a major problem in my parameters and the
+particles are failing to slow down.
+
+I ran a quick analysis of the time-varying variables for the 00 iteration and am satified that
+the swarm is finding a stable optimum, however, I'm unsure if they're converging. I realize that
+this report can only show me if the swarm if failing to find a better location, not if they
+are actually converging. Perhaps I can ask Hassan. Is there a way to calculate "spread" of a
+swarm? Perhaps calculating the center of the swarm and sum distance from center?
+
+![IMAGE: Fitness/Accuracy for gbest/abest](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Fitness_Score_AG.svg)
+
 
 [Return to top](#0000)
 
 ----------------------------------------------------------------------------------------------------
 
-## TITLE <a name="0005"></a>
+## Swarm Convergence <a name="0005"></a>
+June 27, 2018
+
+### Question
+Is the swarm actually converging on a target, or is it merely flailing and failing to find a
+better position?
+
+### Hypothesis
+I suspect that the swarm is continuing to travel wildly instead of slowing and converging as a
+group to an optimum location.
+
+### Experiment Design
+I will repeat a set of previous parameters to increase the likelihood that I can interpret my
+results. I will introduce a new method in CPSO\_Swarm to calculate and store the "spread"
+of the swarm in its current state. I will report the spread, both as a sum of distances
+and as the mean particle distance. The new function is copied below:
+
+```
+def calc_spread(self, mean=False):
+    """Return the "spreadness" of the swarm.
+
+    Calculates the distance that each particle in the swarm is from
+    the center position of the swarm and returns the sum.
+
+    The center position is calculated by taking the mean of all particle
+    positions, then the distance from the center is calculated for each
+    particle and the sum is returned.
+
+    Parameters
+    ----------
+    mean : boolean; if true, returns the mean of the distances, if false,
+           returns the sum of the distances.
+
+    Returns
+    -------
+    spread : float; sum or mean of all distances between particles and
+             the center of the swarm.
+
+    Raises
+    ------
+    None
+    """
+    positions = []
+    for p in self.swarm:
+        positions.append(p.x)
+    positions = np.array(positions)
+    center = np.mean(positions, axis=0)
+    if mean:
+        return np.linalg.norm(positions - center, axis=1).mean()
+    else:
+        return np.linalg.norm(positions - center, axis=1).sum()
+```
+
+I tested this new method in a separate script called test\_calc\_spread.py, located
+in the experiment folder.
+
+Similarly to [Mean Particle Velocity - The Sequel](#0004), I will run this in triplicate.
+
+Parameter|Value
+:--------|-----
+Number of Particles (npart)|100
+Number of Features (ndim)|190
+Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
+Alpha (alpha)|0.8
+Test Size (testsize)|0.2
+X Bounds (x\_bounds)|(-6.0, 6.0)
+V Bounds (v\_bounds)|(-4.0, 0.25)
+W Bounds (w\_bounds|(0.4, 0.9)
+Time (t\_bounds[1])|150
+
+#### Input
+Feature Data: data/data.csv
+
+Target Data: data/target.csv
+
+Feature Labels: data/feature\_labels.csv
+
+#### Output
+3 directories, named XX\_report\_spread/ where XX is the iteration (XX ϵ \[00, 01, 02\]).
+Each directory will have the following output files inside:
+
+* abinary.csv
+* cpso\_script.py
+* error.txt
+* output.txt
+* job\_script
+* pickled\_trained\_classifier
+* summary\_results.out
+* var\_by\_time.csv
+* X\_train.csv
+* y\_train.csv
+* X\_test.csv
+* y\_test.csv
+
+pickled\_trained\_classifier and all \*.csv files are variable outputs at the end of the
+algorithm. summary\_results.out is a comprehensive, auto-generated report. error.txt and
+output.txt are stderr and stdout for the job. cpso\_script.py and job\_script are the
+scripts used to run this experiment.
+
+#### Running the Experiment
+
+File List:
+
+* cpso\_particle.py
+* cpso\_swarm.py
+* cpso.py
+* experiment\_script.py
+
+Directory List:
+
+* analysis/
+* data/
+
+cpso\_particle.py and cpso\_swarm.py respectively hold COMB\_Particle and COMB\_Swarm classes
+used by cpso.py to run an experiment. The actual experiment code is called by job\_script
+for each iteration from within experiment\_script.py which generates and runs all jobs.
+
+data/ holds the three data input files for the experiment. analysis/ holds anything processed
+after the experiment was run: processed data, analysis notebooks, generated figures, etc.
+
+This experiment was run with a series of dynamically created/called background jobs on Nathan
+Fox's personal computer, named redgray, NIC MAC Address (AC:ED:5C:38:91:C2).
+
+#### EXPERIMENT SCRIPT
+```
+import os
+
+for i in range(3):
+    filename = '{:02}_report_spread'.format(i)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('\n')
+        f.write('function notifyme () {\n')
+        f.write('\tstart=$(date +%s)\n')
+        f.write('\t"$@"\n')
+        f.write('\tpaplay ~/.local/sndfiles/ding_ding.wav\n')
+        f.write('\tnotify-send "I\'m Finished!" "\\"$(echo $@)\\" took $(($(date +%s) - start)) seconds to finish."\n')
+        f.write('}\n')
+        f.write('\n')
+        f.write('notifyme python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--alpha 0.8 --testsize 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds -4.0 0.25 '
+              + '--wbounds 0.4 0.9 --time 150 --data data/data.csv '
+              + '--target data/target.csv --labels data/feature_labels.csv '
+              + '--expname "Swarm Convergence - {:02}" '.format(i)
+              + '--author "Nathan Fox" --outpath {}/ '.format(filename)
+              + '\n')
+    os.system('chmod +x {}/job_script'.format(filename))
+    os.system('{}/job_script > {}/output.txt 2> {}/error.txt &'.format(filename, filename, filename))
+```
+
+### Results/Analysis
+I plotted both the Sum of Particle Distances from the Center for the swarm at each time point
+and the Mean Particle Distance for the swarm at each time point.
+
+![IMAGE: Plot - Sum of Distances](cfs_notebook_files/Swarm_Convergence_PLOT_Sum_Distance.svg')
+
+![IMAGE: Plot - Mean Distance](cfs_notebook_files/Swarm_Convergence_PLOT_Mean_Distance.svg')
+
+### Conclusions/Next Questions
+
+I think this is satisfactory evidence that the swarm is converging extremely quickly to
+a local optimum. I'm curious if the swarm is capable of jumping to a better area. Either way,
+I'm satisfied that I refuted my hypothesis and the swarm is definitely converging.
+
+[Return to top](#0000)
+
+----------------------------------------------------------------------------------------------------
+
+## TITLE <a name="0006"></a>
 DATE
 
 ### Question
