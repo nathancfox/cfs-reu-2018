@@ -2,24 +2,27 @@
 
 ################################################################################
 #
-# TEST
-# Nathan
-# 6/14/2018 17:24
+# Test w/o split
+# Nathan Fox
+# 6/29/2018 12:10
 #
 ################################################################################
 
 
 Parameters
 ----------
-  Number of Particles (npart)              : 50
+  Number of Particles (npart)              : 100
   Acceleration Constant 1 (c1)             : 2.10
   Acceleration Constant 2 (c2)             : 2.10
   Acceleration Constant 3 (c3)             : 2.10
   Available Features (ndim)                : 190
-  Fitness Weight Constant (alpha)          : 0.80
-  Data Fraction Used As Test (test_size)   : 0.20
+  Fitness Function Terms and Weights       : {
+                                               accuracy     : 0.1
+                                               sensitivity  : 0.7
+                                               low_number   : 0.2
+                                             }
   Position Bounds (x_bounds)               : (-6.0, 6.0)
-  Velocity Bounds (v_bounds)               : (-4.0, 3.0)
+  Velocity Bounds (v_bounds)               : (-2.0, 2.0)
   Inertia Bounds (w_bounds)                : (0.4, 0.9)
   End Time (t_bounds[1])                   : 300
 
@@ -31,48 +34,128 @@ Results
 
   Archived Best
   =============
-  Number of Features                       : 20
-  Fitness (a_fitness                       : 0.7909
-  Classifier Score on TRAINING DATA        : 0.7649
-  Classifier Score on TEST DATA            : 0.7550
+  Number of Features                       : 61
+  Fitness (a_fitness                       : 0.2389
+  Accuracy                                 : 0.7309
+  Sensitivity                              : 0.0429
+  Specificity                              : 1.0000
 
-  10-Fold Cross Validation Scores:
+  Positions Where Subset is None           : 0 (Occurences) / 30000 Total Checks (Particles * Time Steps)
 
-    0.6666666666666666
-    0.6666666666666666
-    0.6666666666666666
-    0.8
-    0.8
-    0.8
-    0.8
-    0.8
-    0.8
-    0.75
+Final Re-Check 10-Fold Cross Validation Confusion Matrices:
+
+[[[19.  0.]
+  [ 8.  0.]]
+
+ [[19.  0.]
+  [ 8.  0.]]
+
+ [[19.  0.]
+  [ 7.  0.]]
+
+ [[19.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 6.  1.]]
+
+ [[18.  0.]
+  [ 6.  1.]]
+
+ [[18.  0.]
+  [ 6.  1.]]]
+
+      Accuracy    |  Sensitivity  |  Specificity 
+    ---------------------------------------------
+       0.7037     |    0.0000     |    1.0000    
+       0.7037     |    0.0000     |    1.0000    
+       0.7308     |    0.0000     |    1.0000    
+       0.7308     |    0.0000     |    1.0000    
+       0.7200     |    0.0000     |    1.0000    
+       0.7200     |    0.0000     |    1.0000    
+       0.7200     |    0.0000     |    1.0000    
+       0.7600     |    0.1429     |    1.0000    
+       0.7600     |    0.1429     |    1.0000    
+       0.7600     |    0.1429     |    1.0000    
+    ---------------------------------------------
+                        Means                    
+    ---------------------------------------------
+       0.7309     |    0.0429     |    1.0000    
 
   Selected Features:
 
+    ABL1
+    AKT2
+    AKT3
+    ALK
+    AXL
     BLK
-    CHEK2
-    FES
-    FGR
-    GSK3B
+    BMX
+    BRSK1
+    CAMK1D
+    CDC42BPB
+    CDK1
+    CDK3
+    CHEK1
+    CSF1R
+    CSK
+    CSNK1A1
+    CSNK1G1
+    DDR2
+    DYRK1B
+    EGFR
+    EPHA2
+    EPHB2
+    EPHB4
+    FGFR2
+    FGFR3
+    FLT1
+    GRK6
+    HCK
     IKBKB
+    IKBKE
     INSRR
+    JAK1
+    KDR
     MAPK1
-    MAPKAPK2
-    NEK9
+    MARK1
+    MARK2
+    MARK3
+    MET
+    MKNK1
+    NEK1
+    NTRK2
+    PAK1
+    PAK2
     PAK7
+    PASK
+    PDPK1
     PHKG2
     PIM1
-    PRKACA
-    PRKG2
-    PTK2B
+    PRKD1
+    PRKG1
+    PRKX
+    RPS6KA1
     RPS6KA2
-    RPS6KA5
-    SGK3
+    RPS6KA3
+    RPS6KA6
+    SIK2
+    SRMS
+    STK3
+    SYK
+    TBK1
     TEC
 
-  Runtime                                  : 0h 7m 5s
+  Runtime                                  : 0h 34m 38s
 
 
 Output Files
@@ -97,27 +180,146 @@ Output Files
                                    feature is excluded. If the value is a 1, the
                                    feature is included.
 
-  pickled_trained_classifier     : This is the trained classifier using the
-                                   subset, abinary, of the randomly selected
-                                   training data subsetted from the full feature
-                                   data.
-
-  X_train.csv                    : This is the subset of the feature data
-                                   provided that was used as training data for
-                                   the algorithm.
-
-  y_train.csv                    : This is the subset of the target data
-                                   provided that was used as training data for
-                                   the algorithm.
-
-  X_test.csv                     : This is the subset of the feature data
-                                   provided that was used as testing data for
-                                   the algorithm.
-
-  y_test.csv                     : This is the subset of the target data
-                                   provided that was used as testing data for
-                                   the algorithm.
 
 --------------------------------------------------------------------------------
-  End of Experiment
+|                              End of Experiment                               |
+--------------------------------------------------------------------------------
+
+
+################################################################################
+#
+# Test w/o split
+# Nathan Fox
+# 6/29/2018 12:53
+#
+################################################################################
+
+
+Parameters
+----------
+  Number of Particles (npart)              : 100
+  Acceleration Constant 1 (c1)             : 2.10
+  Acceleration Constant 2 (c2)             : 2.10
+  Acceleration Constant 3 (c3)             : 2.10
+  Available Features (ndim)                : 190
+  Fitness Function Terms and Weights       : {
+                                               sensitivity  : 0.7
+                                               low_number   : 0.3
+                                             }
+  Position Bounds (x_bounds)               : (-6.0, 6.0)
+  Velocity Bounds (v_bounds)               : (-2.5, 2.0)
+  Inertia Bounds (w_bounds)                : (0.4, 0.9)
+  End Time (t_bounds[1])                   : 300
+
+  feature data : working_data/prepped_for_classifier/data.csv
+  target data  : working_data/prepped_for_classifier/target.csv
+
+Results
+-------
+
+  Archived Best
+  =============
+  Number of Features                       : 15
+  Fitness (a_fitness                       : 0.3838
+  Accuracy                                 : 0.7510
+  Sensitivity                              : 0.1536
+  Specificity                              : 0.9842
+
+  Positions Where Subset is None           : 0 (Occurences) / 30000 Total Checks (Particles * Time Steps)
+
+Final Re-Check 10-Fold Cross Validation Confusion Matrices:
+
+[[[18.  1.]
+  [ 6.  2.]]
+
+ [[18.  1.]
+  [ 8.  0.]]
+
+ [[19.  0.]
+  [ 7.  0.]]
+
+ [[18.  1.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 7.  0.]]
+
+ [[18.  0.]
+  [ 2.  5.]]
+
+ [[18.  0.]
+  [ 5.  2.]]
+
+ [[18.  0.]
+  [ 5.  2.]]]
+
+      Accuracy    |  Sensitivity  |  Specificity 
+    ---------------------------------------------
+       0.7407     |    0.2500     |    0.9474    
+       0.6667     |    0.0000     |    0.9474    
+       0.7308     |    0.0000     |    1.0000    
+       0.6923     |    0.0000     |    0.9474    
+       0.7200     |    0.0000     |    1.0000    
+       0.7200     |    0.0000     |    1.0000    
+       0.7200     |    0.0000     |    1.0000    
+       0.9200     |    0.7143     |    1.0000    
+       0.8000     |    0.2857     |    1.0000    
+       0.8000     |    0.2857     |    1.0000    
+    ---------------------------------------------
+                        Means                    
+    ---------------------------------------------
+       0.7510     |    0.1536     |    0.9842    
+
+  Selected Features:
+
+    AURKA
+    CAMK2D
+    CAMK4
+    CDK3
+    CDK5
+    CHUK
+    FLT1
+    GSK3B
+    INSRR
+    NEK6
+    NEK9
+    ROCK2
+    RPS6KA3
+    SGK1
+    TYRO3
+
+  Runtime                                  : 0h 21m 4s
+
+
+Output Files
+------------
+  var_by_time.csv                : This is a csv file that holds the values of
+                                   several variables as they vary over time
+                                   during a single run of the algorithm. Each
+                                   row represents a single time, each column is
+                                   a single variable. The first row is a header
+                                   row and contains labels for all the columns
+                                   except the first one, which is time. It is
+                                   expected that the time column will be used as
+                                   an index in any DataFrames used to process
+                                   this file and so no column label was given.
+
+  abinary.csv                    : This is a csv file that holds the boolean
+                                   vector returned as the optimum feature subset
+                                   by the algorithm. It is a list of values
+                                   where each value is either a 0 or 1. In the
+                                   order given in the original data set or in
+                                   the label vector, if the value is a 0, the
+                                   feature is excluded. If the value is a 1, the
+                                   feature is included.
+
+
+--------------------------------------------------------------------------------
+|                              End of Experiment                               |
 --------------------------------------------------------------------------------

@@ -3,11 +3,9 @@
 # Title: COMB-PSO Particle Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 1, 2018
-# Date Modified: June 14, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: July 2, by Nathan Fox <nathanfox@miami.edu>
 #
 #------------------------------------------------------------------------------+
-
-# TODO (nathanfox@miami.edu): update the docstrings.
 
 import numpy as np
 from scipy.special import expit
@@ -33,9 +31,6 @@ class COMB_Particle:
 
     pbinary : 1-Dimensional ndarray, size ndim; Holds the binary best position 
               converted from pbest as a list of booleans.
-
-    p_fitness : float; the fitness value returned by COMB_Swarm.eval_fitness
-                for the current pbest.
 
     w : float; inertia coefficient.
     
@@ -69,20 +64,22 @@ class COMB_Particle:
 
     update_binary_position : Updates binary position by converting current x.
 
+    convert_pos_to_binary : Converts a continuous position vector to binary.
+
     update_inertia : Updates inertia based on time.
+
+    jaccard_index : Calculates a binary comparison Jaccard Index Coefficient.
     """
 
     def __init__(self, c1, c2, c3, ndim, x_bounds, v_bounds, w_bounds):
         """Initialize the COMB_Particle object.
 
         Initializes a COMB_Particle object. The new COMB_Particle then randomly
-        initializes its position, binary position, velocity, and pbest vectors,
-        then assigns the inertia, c1, c2, c3 variables and the respective
+        initializes its position and velocity vectors. Based on those initial
+        vectors, it then generates initial pbinary and pbest vectors. It 
+        then initializes the inertia, c1, c2, c3 variables and the various
         bounds.
         
-        NOTE: p_fitness must be initialized in the swarm class because
-        of a readability-based design decision.
-
         Parameters
         ----------
         c1 : float, acceleration coefficient for the cognitive component.
@@ -91,16 +88,20 @@ class COMB_Particle:
 
         c3 : float, acceleration coefficient for the diversity component.
 
-        ndim : integer, number of dimensions or features in the search space.
+        ndim : integer; number of dimensions or features in the search space.
                Also the length of the position and velocity vectors.
 
-        x_bounds : tuple of floats, size 2, x_bounds[0] is the minimum value
+        x_bounds : tuple of floats, size 2; x_bounds[0] is the minimum value
                    that an element of x can be; x_bounds[1] is the maximum
                    value that an element of x can be.
 
-        v_bounds : tuple of floats, size 2, v_bounds[0] is the minimum value
+        v_bounds : tuple of floats, size 2; v_bounds[0] is the minimum value
                    that an element of v can be; v_bounds[1] is the maximum
                    value that an element of v can be.
+
+        w_bounds : tuple of floats, size 2; w_bounds[0] is the minimum value
+                   that w can be, w_bounds[1] is the maximum value that w
+                   can be.
 
         Returns
         -------
@@ -126,8 +127,6 @@ class COMB_Particle:
         self.update_binary_position()
         self.pbest = self.x.copy()
         self.pbinary = self.b.copy()
-        self.p_fitness = 0.0 # Initialized in the swarm class.
-        self.p_score = 0.0 # Initialized in the swarm class.
                 
     def update_position(self):
         """Update the position vector for one time step.
@@ -211,8 +210,7 @@ class COMB_Particle:
         ------
         None
         """
-        # This implementation cannot start at the upper bound,
-        # Not sure if that's a problem
+        # NOTE: This implementation cannot initialize at self.x_bounds[1].
         self.x = np.random.uniform(low=self.x_bounds[0],
                                    high=self.x_bounds[1],
                                    size=self.ndim)
@@ -238,8 +236,8 @@ class COMB_Particle:
         # This implementation cannot start at the upper bound,
         # Not sure if that's a problem
         self.v = np.random.uniform(low=self.v_bounds[0],
-                              high=self.v_bounds[1],
-                              size=self.ndim)
+                                   high=self.v_bounds[1],
+                                   size=self.ndim)
 
     def update_binary_position(self):
         """Convert continuous position vector to binary position vector.
@@ -259,12 +257,6 @@ class COMB_Particle:
         ------
         None
         """
-        # Use if random numbers need to be saved
-        # rand_compar = np.random.uniform(size=self.ndim)
-        # Save rand_compar to file
-        # self.b = (self.x < rand_compar).astype(int)
-        
-        # Use if random numbers do Not need to be saved
         self.b = self.convert_pos_to_binary(self.x)
 
     def convert_pos_to_binary(self, x):
@@ -290,14 +282,15 @@ class COMB_Particle:
 
         Returns
         -------
-        binary : ndarray, size ndim; boolean ndarray that holds the
-                 binary version of x, a continuous position vector.
+        b: ndarray, size ndim; boolean ndarray that holds the
+           binary version of x, a continuous position vector.
 
         Raises
         ------
         None
         """
-        return (np.random.uniform(size=x.size) < expit(x))
+        # Use if random numbers do Not need to be saved
+        return np.random.uniform(size=x.size) < expit(x)
 
     def update_inertia(self, gbinary):
         """Update inertia coefficient, w.
@@ -324,8 +317,10 @@ class COMB_Particle:
         None
         """
         self.w = (self.w_bounds[1]
-                  - ((self.w_bounds[1]-self.w_bounds[0])
-                         * self.jaccard_index(gbinary)))
+                  - (  (self.w_bounds[1]-self.w_bounds[0])
+                      * self.jaccard_index(gbinary)
+                    )
+                 )
    
     def jaccard_index(self, gbinary):
         """Return binary Jaccard index coefficient between x and gbinary.

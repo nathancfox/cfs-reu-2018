@@ -3,34 +3,21 @@
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
-# Date Modified: June 15, 2018, by Nathan Fox <nathanfox@miami.edu>
+# Date Modified: July 2, 2018, by Nathan Fox <nathanfox@miami.edu>
 #
 #-----------------------------------------------------------------------------+
 
-# TODO: Update docstrings.
-#
 # Evolutionary Functionality: 
 #
-#   It should record the progression of gbest and abest, and possibly
-#   also each particle's pbest. It also maybe should pickle the classifier?
-#   It also might want to take freezes of the initial states, and record
-#   all the positions and velocities for each particle over time and export.
-#   The fitness values should almost certainly be recorded and exported
-#   because they take so much time to compute.
-#
-#   The program should be callable as a script with arguments. This means
-#   that as many currently-hard-coded parameters should be class
-#   attributes as possible, so that wrapper scripts using this class
-#   can pass them as arguments. Maybe pass them in a dictionary?
-#
-#   The program should also have options on what data to store because
-#   i/o affects runtime so much. If the entire path of each particle
-#   is not needed, it shouldn't be recorded to file.
+#   The program should have options on what data to store because
+#   i/o affects runtime so much. For example: if the entire path of each
+#   particle is not needed, it shouldn't be recorded to file.
 
 import numpy as np
 from scipy.special import expit
 from sklearn import svm
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import confusion_matrix
 from cpso_particle import COMB_Particle
 
 class COMB_Swarm:
@@ -43,37 +30,8 @@ class COMB_Swarm:
 
     Attributes
     ----------
-    swarm : list, size npart; holds the swarm of COMB_Particle objects.
-
     npart : integer; number of particles in the swarm.
     
-    gbest : 1-Dimensional ndarray, size ndim; Holds the global best position
-            found by any particle in the swarm. Subject to reshuffling based
-            on the "shuffle and archive" behavior in the COMB-PSO algorithm.
-
-    g_fitness : float; the fitness value returned by eval_fitness for the
-                current gbest.
-
-    gbest_counter : integer; stagnation counter for gbest. If it reaches 3,
-                    shuffle_gbest is called.
-
-    gbinary : 1-Dimensional ndarray, size ndim; Holds the binary global
-              best position as a list of booleans.
-
-    abest : 1-Dimensional ndarray, size ndim; Holds the archived best
-            position found by any particle in the swarm, even if the global
-            best has been shuffled.
-
-    a_fitness : float; the fitness value returned by eval_fitness for the
-                current abest.
-
-    abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
-              best position as a list of booleans.
-
-    t : integer; current time.
-
-    w : float; inertia coefficient.
-
     c1 : float; acceleration constant 1, for the cognitive component
 
     c2 : float; acceleration constant 2, for the social component
@@ -83,8 +41,9 @@ class COMB_Swarm:
     ndim : integer; number of dimensions in the search space; also the size
            of the position and velocity vectors.
 
-    alpha : float, alpha ϵ [0.0, 1.0]; weights number of features vs.
-            classification performance in evaluating fitness.
+    terms : dict; key is a string indicating a certain term of the
+            fitness function. value is a float indicating the actual
+            weight of that term.
 
     x_bounds : float tuple, size 2; Holds lower/upper bounds for elements
                in the position vectors.
@@ -97,6 +56,55 @@ class COMB_Swarm:
 
     t_bounds : integer tuple, size 2; Holds beginning and end times for
                the algorithm.
+    
+    t : integer; current time.
+
+    all_false_counter : integer, > 0; Counter for the number of times that
+                        a binary position of all False (0 feature subset)
+                        was passed to the fitness function.
+
+    gbest : 1-Dimensional ndarray, size ndim; Holds the global best position
+            found by any particle in the swarm. Subject to reshuffling based
+            on the "shuffle and archive" behavior in the COMB-PSO algorithm.
+
+    gbest_counter : integer; stagnation counter for gbest. If it reaches 3,
+                    shuffle_gbest is called.
+
+    stagn_limit : int, > 0; number of times that gbest can stagnate
+                  before shuffle_gbest() is called. Default 3.
+
+    gbinary : 1-Dimensional ndarray, size ndim; Holds the binary global
+              best position as a list of booleans.
+
+    g_fitness : float; the fitness value returned by eval_fitness for the
+                current gbest.
+
+    g_score : float tuple, size 3, elements ϵ [0.0, 1.0]; holds the
+              accuracy, sensitivity, and specificity for the classifier's
+              performance using gbinary.
+
+    abest : 1-Dimensional ndarray, size ndim; Holds the archived best
+            position found by any particle in the swarm, even if the global
+            best has been shuffled.
+
+    abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
+              best position as a list of booleans.
+
+    a_fitness : float; the fitness value returned by eval_fitness for the
+                current abest.
+
+    a_score : float tuple, size 3, elements ϵ [0.0, 1.0]; holds the
+              accuracy, sensitivity, and specificity for the classifier's
+              performance using abinary.
+
+    swarm : list, size npart; holds the swarm of COMB_Particle objects.
+
+    p_fitness : float ndarray, size npart; holds the current fitness for
+                each particle in the swarm.
+
+    p_scores : float ndarray, size (npart, 3); holds the (accuracy,
+               sensitivity, specificity) tuple for each particle in the
+               swarm.
 
     clf : sklearn classifier object, currently an SVC (Support Vector Machine
           Classifier); To be used in evaluating the fitness of a position
@@ -108,14 +116,18 @@ class COMB_Swarm:
     target : 1-Dimensional ndarray, size number_of_data_points; holds the
              correct classifications for the data points in data.
 
+    var_by_time : dict; key is a string indicating a certain variable, value is
+                  an ndarray holding the value of that variable for each time
+                  during the run of execute_search().
+
+    init_flag : boolean; True when self is fully initialized (both __init__()
+                and initialize_particles() have been called).
 
     Functions
     ---------
     __init__ : Initializes a COMB_Swarm object and assigns all attributes.
 
     initialize_particles : Fills the swarm with initialized COMB_Particles. 
-
-    initialize_classifier : Initializes the classifier used in eval_fitness.
 
     execute_search : Execute one full run of the COMB-PSO algorithm.
 
@@ -128,9 +140,9 @@ class COMB_Swarm:
     eval_fitness : Evaluates the fitness function for a position vector.
     """
     
-    def __init__(self, npart, c1, c2, c3, ndim, alpha,
+    def __init__(self, npart, c1, c2, c3, ndim, terms, stagn_limit,
                  x_bounds, v_bounds, w_bounds, t_bounds,
-                 data_path, target_path):
+                 data_path, target_path, init_particles):
         """Initialize the COMB_Swarm object.
 
         Initializes a COMB_Swarm object. The new COMB_Swarm then assigns its
@@ -154,11 +166,13 @@ class COMB_Swarm:
         ndim : integer; number of dimensions or features in the search space.
                Also the length of the position and velocity vectors.
 
-        alpha : float, ϵ [0.0, 1.0]; weights number of features vs.
-                classification performance in evaluating fitness. If alpha
-                = 1.0, classification performance is the only contributing
-                factor to fitness. If alpha = 0.0, minimizing the number
-                of features is the only contributing factor to fitness.
+        terms : dict; key is a string indicating a certain term of the
+                fitness function. value is a float indicating the actual
+                weight of that term. Example: terms['accuracy'] = 0.3.
+                sum(terms.values()) should equal 1.0.
+
+        stagn_limit : int, > 0; number of times that gbest can stagnate
+                      before shuffle_gbest() is called. Default 3.
 
         x_bounds : tuple of floats, size 2; x_bounds[0] is the minimum value
                    that an element of COMB_Particle.x can be; x_bounds[1]
@@ -188,6 +202,11 @@ class COMB_Swarm:
                       to by data_path. This file should have 1 line with all
                       the labels, separated by commas.
 
+        init_particles : boolean; if true, automatically initialize the
+                         particles in the swarm, if false,
+                         initialize_particles() must be called manually
+                         by the wrapper program.
+
         Returns
         -------
         None
@@ -201,23 +220,27 @@ class COMB_Swarm:
         self.c2 = c2
         self.c3 = c3
         self.ndim = ndim
-        self.alpha = alpha
+        self.terms = terms
         self.x_bounds = x_bounds
         self.v_bounds = v_bounds
         self.w_bounds = w_bounds
         self.t_bounds = t_bounds
-        self.all_false = 0
         # Placeholders
+        self.t = 0
+        self.all_false_counter = 0
         self.gbest = np.zeros(self.ndim)
         self.gbest_counter = 0
+        self.stagn_limit = stagn_limit
         self.gbinary = np.zeros(self.ndim)
         self.g_fitness = 0.0
-        self.g_score = 0.0
+        self.g_score = (0.0, 0.0, 0.0)
         self.abest = np.zeros(self.ndim)
         self.abinary = np.zeros(self.ndim)
         self.a_fitness = 0.0
-        self.a_score = 0.0
+        self.a_score = (0.0, 0.0, 0.0)
         self.swarm = []
+        self.p_fitness = np.zeros(self.npart)
+        self.p_scores = np.zeros((self.npart, 3))
 
         self.clf = svm.SVC()
         self.data = np.loadtxt(data_path, dtype=np.float64, delimiter=',')
@@ -225,42 +248,29 @@ class COMB_Swarm:
         self.var_by_time = {
                             'num_features': np.zeros(t_bounds[1]).astype(int),
                             'g_fitness': np.zeros(t_bounds[1]),
-                            'g_score' : np.zeros(t_bounds[1]),
+                            'g_score' : np.zeros((t_bounds[1], 3)),
                             'a_fitness': np.zeros(t_bounds[1]),
-                            'a_score': np.zeros(t_bounds[1]),
+                            'a_score': np.zeros((t_bounds[1], 3)),
                            }
+        self.init_flag = False
+        if init_particles:
+            self.initialize_particles()
 
     def initialize_particles(self):
         """Initialize the particles that comprise the swarm.
 
         Actually fills the empty list, swarm, with COMB_Particle objects.
-        Separated particle initialization from the __init__ function
-        because of a high computational time cost. Wrapper scripts using
-        the COMB_Swarm class should manually initialize the particles.
+        Particle initialization is separated from the __init__ function
+        because of a comparatively high computational cost. Wrapper scripts
+        using the COMB_Swarm class may manually call this function if they set
+        the init_particles parameter to False in __init__().
 
-        NOTE: The inertia coefficient, w, is not initialized here because
-              it is updated based on gbinary as the very first thing in
-              the actual run of the algorithm in execute_search. It is
-              only initialized as a placeholder, 0.0 in the particle
-              __init__. If you use these classes out of context, be
+        NOTE: The inertia coefficient, w, for each particle is not initialized
+              here because it is updated based on gbinary as the very first
+              action in the actual run of the algorithm in execute_search(). It
+              is only initialized as a placeholder, 0.0, in the particle
+              function, __init__(). If you use these classes out of context, be
               sure to know that the w attribute may not be what you expect.
-
-        NOTE: See "# NOTE REFERENCE" below. That line of code is manually
-              initializing the p_fitness attribute for each COMB_Particle
-              in the COMB_Swarm. The author recognizes that having to
-              manually initialize an attribute from outside a class is
-              horrible programming practice. However, this was a
-              requirement for greater readability in this method. If the
-              pbest attributes were stored in a data structure in the
-              COMB_Swarm class, the for loop in execute_search would read as
-              "for i in range(self.npart):" instead of "for p in self.swarm",
-              causing all references to the COMB_Particle to be "swarm[i]"
-              instead of "p", greatly reducing readability of the main
-              algorithm of this class. Thus, the author decided to store
-              each pbest attribute inside its respective COMB_Particle.
-              Because the eval_fitness method is in the COMB_Swarm class,
-              this means that the COMB_Particle cannot initialize its own
-              pbest attribute. Thus, it is done here.
 
         Parameters
         ----------
@@ -270,9 +280,6 @@ class COMB_Swarm:
         -------
         None
 
-        abinary : 1-Dimensional ndarray, size ndim; Holds the binary archived
-                  best position. 
-
         Raises
         ------
         None
@@ -281,16 +288,10 @@ class COMB_Swarm:
             self.swarm.append(COMB_Particle(self.c1, self.c2, self.c3,
                                             self.ndim, self.x_bounds,
                                             self.v_bounds, self.w_bounds))
-            f, f_score = self.eval_fitness(self.swarm[i].b)
-            # NOTE REFERENCE : See docstring above.
-            self.swarm[i].p_fitness = f
-            self.swarm[i].p_score = f_score
-            if i == 0:
-                self.gbest = self.swarm[i].x.copy()
-                self.gbinary = self.swarm[i].b.copy()
-                self.g_fitness = f
-                self.g_score = f_score
-            elif f > self.g_fitness:
+            f, f_score = self.eval_fitness(self.swarm[i].b, 10, self.terms)
+            self.p_fitness[i] = f
+            self.p_scores[i] = f_score
+            if f > self.g_fitness:
                 self.gbest = self.swarm[i].x.copy()
                 self.gbinary = self.swarm[i].b.copy()
                 self.g_fitness = f
@@ -304,6 +305,7 @@ class COMB_Swarm:
         self.var_by_time['g_score'][0] = self.g_score
         self.var_by_time['a_fitness'][0] = self.a_fitness
         self.var_by_time['a_score'][0] = self.a_score
+        self.init_flag = True
 
     def execute_search(self):
         """Execute a full run of the COMB-PSO Algorithm.
@@ -313,8 +315,8 @@ class COMB_Swarm:
         a 1-Dimensional ndarray containing the best position found
         by the algorithm.
 
-        NOTE: initialize_particles and initialize_classifer MUST be called
-              before this method will run correctly.
+        NOTE: initialize_particles MUST be called before this method
+              will run correctly.
 
         Parameters
         ----------
@@ -328,19 +330,24 @@ class COMB_Swarm:
         ------
         None
         """
+        if not init_flag:
+            print('ERROR: initialize_particles() must be called '
+                + 'before execute_search()')
+            return
         for i in range(1, self.t_bounds[1]):
             self.t = i
+            counter = 0
             for p in self.swarm:
                 p.update_inertia(self.gbinary)
                 p.update_velocity(self.gbest, self.abest)
                 p.update_position()
                 p.update_binary_position()
-                f, f_score = self.eval_fitness(p.b)
-                if f > p.p_fitness:
+                f, f_score = self.eval_fitness(p.b, 10, self.terms)
+                if f > self.p_fitness[counter]:
                     p.pbest = p.x.copy()
                     p.pbinary = p.b.copy()
-                    p.p_fitness = f
-                    p.p_score = f_score
+                    self.p_fitness[counter] = f
+                    self.p_scores[counter] = f_score
                 if f > self.g_fitness:
                     # -1 because the counter should be 0 during the
                     # next comparison to updated positions. The other
@@ -352,13 +359,14 @@ class COMB_Swarm:
                     self.gbinary = p.b.copy()
                     self.g_fitness = f
                     self.g_score = f_score
+                counter += 1
             if self.g_fitness > self.a_fitness:
                 self.abest = self.gbest.copy()
                 self.abinary = self.gbinary.copy()
                 self.a_fitness = self.g_fitness
                 self.a_score = self.g_score
             self.gbest_counter += 1
-            if self.gbest_counter >= 3:
+            if self.gbest_counter >= self.stagn_limit:
                 self.shuffle_gbest()
             self.var_by_time['num_features'][i] = np.count_nonzero(self.abinary)
             self.var_by_time['g_fitness'][i] = self.g_fitness
@@ -373,7 +381,7 @@ class COMB_Swarm:
         the new gbest is better than the old gbest. This method implements
         the "shuffle and archive" functionality described in the COMB-PSO
         algorithm. This method should only be used when gbest has been
-        updated 3 times and has not changed.
+        updated stagn_limit times and has not changed.
 
         Parameters
         ----------
@@ -392,7 +400,8 @@ class COMB_Swarm:
                                        high=self.x_bounds[1],
                                        size=self.ndim)
         self.gbinary = self.convert_pos_to_binary(self.gbest)
-        self.g_fitness, self.g_score = self.eval_fitness(self.gbinary)
+        self.g_fitness, self.g_score = self.eval_fitness(self.gbinary, 10,
+                                                         self.terms)
         if self.g_fitness > self.a_fitness:
             self.abest = self.gbest.copy()
             self.abinary = self.gbinary.copy()
@@ -423,8 +432,8 @@ class COMB_Swarm:
 
         Returns
         -------
-        binary : ndarray, size ndim; boolean ndarray that holds the
-                 binary version of x, a continuous position vector.
+        b : ndarray, size ndim; boolean ndarray that holds the
+            binary version of x, a continuous position vector.
 
         Raises
         ------
@@ -432,16 +441,18 @@ class COMB_Swarm:
         """
         return (np.random.uniform(size=x.size) < expit(x))
 
-    def test_classify(self, b):
+    def test_classify(self, b, k):
         """Return a classification performance for a binary position vector.
 
-        Runs a classification with the clf attribute as a classifier and
-        X_train and y_train as the feature data/correct classifications.
+        Runs a classification test with the clf attribute as a classifier and
+        self.data and self.target as the feature data/correct classifications.
         Can be modified to classify any way, as long as it returns a metric
         of performance.
 
-        Currently runs a 10-fold cross validation and returns the mean
-        classification accuracy.
+        Currently runs a k-fold cross validation and returns the confusion
+        matrices for all k iterations. Accuracy, sensitivity, and specificity
+        can all be calculated from this confusion matrix. Wrapper functions
+        should calculate and average these values independently if they wish.
 
         Parameters
         ----------
@@ -449,40 +460,71 @@ class COMB_Swarm:
             where each value ϵ {0, 1} and represents respectively the
             exclusion or inclusion of that feature in the subset used for
             training.
+
+        k : integer, k > 1; number of folds in the k-fold cross validation.
         
         Returns
         -------
-        scores : The classification accuracies returned
-                 by the 10-fold cross validation.
+        conf_matrices : ndarray, size = (k, 2, 2); array of confusion matrices
+                        where each confusion matrix reports the scoring results
+                        from one iteration of the k-fold cross validation.
 
         Raises
         ------
         None
         """
-        scores = cross_val_score(self.clf, self.data[:, b],
-                                 y=self.target, cv=10)
-        return scores
+        conf_matrices = np.zeros((k, 2, 2))
+        cnt = 0
+        kf = StratifiedKFold(n_splits=k)
+        for train_index, test_index in kf.split(self.data, self.target):
+            self.clf.fit(self.data[train_index][:, b], self.target[train_index])
+            y_pred = self.clf.predict(self.data[test_index][:, b])
+            conf_matrices[cnt] = confusion_matrix(self.target[test_index],
+                                                  y_pred)
+            cnt += 1
+        return conf_matrices
         
-    def eval_fitness(self, b):
-        """Evaluate the fitness of the current position vector.
+    def eval_fitness(self, b, k, terms):
+        """Evaluate the fitness of the given position vector.
 
-        Evaluates the fitness of the current binary position vector or feature
-        subset by using the current binary position vector to train a
+        Evaluates the fitness of the given binary position vector or feature
+        subset by using that vector to subset the data to train a
         classifier and test predictive performance.
 
-        Fitness Function:
+        The fitness function contains multiple terms, all optional (there must
+        be at least one). The terms to be included are indicated by passing a
+        dict of weight factors. The general form of the fitness function is:
 
-        f(X, y, b, alpha) = alpha * Pb + (1-alpha) * (|X|-|b|)/|X|
+            fitness(X, y, b, T, w) = w_0*T_0 + w_1*T_1 + ... + w_n*T_n
 
-        where X is the set of all features,
-              y is the set of class label values,
-              b is the subset of features selected
-              alpha is a weight factor that denotes importance to size of the
-                    subset and accuracy of the classifier
-              Pb is the classification score given only b (decoded by y
-                 and the position vector)
-              |X| is the number of features (size of position vector)
-              |b| is the number of features in b
+        where X is the feature data,
+              y is the target label data,
+              b is the subset of features, represented by a boolean vector
+              T is the vector of terms included in the function
+              w is the vector of weight factors; size = number of terms
+
+        Available Term Options:
+        
+            accuracy: The mean accuracy from the k-fold cross validation
+                      executed by test_classify().
+
+            sensitivity: The mean sensitivity from the k-fold cross validation
+                         executed by test_classify(). NOTE: Should only be used
+                         in binary classification.
+
+            specificity: The mean specificity from the k-fold cross validation
+                         executed by test_classify(). NOTE: Should only be used
+                         in binary classification.
+
+            low_number: The number of features in the subset. Fewer is better.
+
+        Example terms parameter:
+
+            terms = {
+                      'accuracy': 0.4
+                      'sensitivity': 0.4
+                      'low_number': 0.2
+                    }
 
         Parameters
         ----------
@@ -491,25 +533,68 @@ class COMB_Swarm:
             exclusion or inclusion of that feature in the subset used for
             training.
 
+        k : integer, k > 1; number of folds in the k-fold cross validation.
+
+        terms : dict; key must be a string that is a term name, see above
+                documentation. value is a float in interval (0.0, 1.0]. Values
+                must sum to 1.0.
+
         Returns
         -------
-        f : float tuple, size 2; f[0] is the value of the fitness function,
-                                 f[1] is the classification score.
+        fitness : float; value returned by the fitness function.
+
+        scores : float tuple, size 3; accuracy, sensitivity, and specificity
 
         Raises
         ------
         None
         """
         if np.count_nonzero(b) == 0:
-            self.all_false += 1
-            return 0.0, 0.0 
-        # clf_perf is the same as Pb in the above equation
-        clf_perf = self.test_classify(b).mean()
-        f = ((self.alpha*clf_perf)
-             + (   (1-self.alpha)
-                 * ((self.ndim-np.count_nonzero(b)) / self.ndim)
-               )
-            )
-        # print(str(f)+'\n'+str(clf_perf))
-        # sys.exit(0)
-        return f, clf_perf
+            self.all_false_counter += 1
+            return 0.0, (0.0, 0.0, 0.0)
+        if not terms:
+            print('Error - COMB_Swarm.eval_fitness: '
+                + 'You must include at least one term.')
+        # Weights should sum to 1, but floating point arithemetic is tricky
+        if (sum(terms.values()) > 1.0001
+          or sum(terms.values()) < 0.9999):
+            print('Error - COMB_Swarm.eval_fitness: '
+                + 'Weight factors must sum to 1.0')
+            return
+        valid_terms = {'accuracy', 'sensitivity', 'specificity',
+                       'low_number'}
+        for key, value in terms.items():
+            if key not in valid_terms:
+                print('Error - COMB_Swarm.eval_fitness: '
+                    + '{} is not a valid term'.format(k))
+                return
+            if value <= 0.0 or value > 1.0:
+                print('Error - COMB_Swarm.eval_fitness: '
+                    + '{} is not a valid weight factor. '.format(v)
+                    + 'Weights must be in the interval (0.0, 1.0]')
+                return
+        cm = self.test_classify(b, k)
+        accs = np.zeros(k)
+        sens = np.zeros(k)
+        spec = np.zeros(k)
+        cnt = 0
+        for m in cm:
+            accs[cnt] = (m[0,0]+m[1,1])/m.sum()
+            sens[cnt] = m[1,1]/(m[1,1]+m[1,0])
+            spec[cnt] = m[0,0]/(m[0,0]+m[0,1])
+            cnt += 1
+        accuracy = accs.mean()
+        sensitivity = sens.mean()
+        specificity = spec.mean()
+        fitness = 0.0
+        if 'accuracy' in terms.keys():
+            fitness += accuracy * terms['accuracy']
+        if 'sensitivity' in terms.keys():
+            fitness += sensitivity * terms['sensitivity']
+        if 'specificity' in terms.keys():
+            fitness += specificity * terms['specificity']
+        if 'low_number' in terms.keys():
+            fitness += (((self.ndim-np.count_nonzero(b)) / self.ndim)
+                     * terms['low_number'])
+
+        return fitness, (accuracy, sensitivity, specificity)
