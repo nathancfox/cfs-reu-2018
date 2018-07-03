@@ -1596,12 +1596,72 @@ be better than the values I've been seeing on my less refined method. This is be
 know the parameters that were used for the SVM used in the paper.
 
 ### Experiment Design
+I will write a custom script that trains a default SVM from sklearn on 10-15 kinases, then
+test. I will try single train/test instances and 10-Fold Cross Validations on several different
+combinations of kinases.
 
+Source Paper: doi: 10.1021/acschembio.5b00289
 
-Parameter|Value
-:--------|-----
+The following are the 15 polypharmacologically linked groups identified by the authors
+of the Rational Polypharmacology paper.
 
-#### Input
+![IMAGE: Rational Polypharmacology - Table 1](cfs_notebook_files/VERIFYING_RATIONAL_POLYPHARMACOLOGY_Table_One.png)
+
+#### Training Subset Cohorts
+
+**Cohort 1:** Kinases from Figure 3a (Representatives)
+
+* ROCK2
+* PIK3CD
+* PRKCG
+* PRKG1
+* PRKX
+* TNK2
+* RPS6KA4
+* CDK5
+* MAPKAPK3
+* MAPK14
+
+**Cohort 2:** First Kinase in Each Group
+
+* TNK2
+* ROCK1
+* PIK3CB
+* PRKCA
+* CDK1
+* RPS6KA4
+* PRKG1
+* MAPKAPK3
+* PRKX
+* MAPK14
+* MAP4K4
+* MUSK
+* FGR
+* EGFR
+* FLT4
+
+**Cohort 3:** Random Selections (replicate 3 times)
+Randomly selected member from each group.
+
+To summarize, I will try 2 versions:
+
+1. Random Stratified Train/Test Split, Fit, then Test.
+2. 10-Fold Stratified Cross Validation
+
+For each version, I will test 5 cohorts:
+
+1. Cohort 1: Kinases from Figure 3a.
+2. Cohort 2: First Kinase from 15 groups.
+3. Cohort 3: Stratified Random Selection.
+4. Cohort 3: Stratified Random Selection.
+5. Cohort 3: Stratified Random Selection.
+
+NOTE: Cohort 3 is repeated thrice because it is a random selection.
+
+I will then compare accuracy, sensitivity, and specificity for all iterations.
+
+This process will be repeated for an SVM using a different kernel each time:
+{'linear', 'rbf', 'poly', 'sigmoid', 'precomputed'}.
 
 #### Output
 
