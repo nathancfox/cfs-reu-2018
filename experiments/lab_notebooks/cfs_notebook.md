@@ -16,6 +16,7 @@ Experiment|Date|Summary|Completed
 [Mean Particle Velocity](#0003)|06/26/2018|Characterizing particle velocities.|Yes
 [Mean Particle Velocity - The Sequel](#0004)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
 [Swarm Convergence](#0005)|06/27/2018|Checking for convergence over time|Yes
+[Verifying Rational Polypharmacology](#0006)|07/3/2018|Running an SVM on the returned informative kinases from the "Rational Polypharmacology" paper.|No
 
 ----------------------------------------------------------------------------------------------------
 
@@ -1582,7 +1583,46 @@ I'm satisfied that I refuted my hypothesis and the swarm is definitely convergin
 
 ----------------------------------------------------------------------------------------------------
 
-## TITLE <a name="0006"></a>
+## Verifying Rational Polypharmacology <a name="0006"></a>
+July 3, 2018
+
+### Question
+Can I replicate the accuracy, sensitivity, and specificity reported in "Rational Polypharmacology"
+by training my default SVM on the kinases reported in the paper?
+
+### Hypothesis
+I hypothesize that my results will not be as good as the values reported in the paper, but should
+be better than the values I've been seeing on my less refined method. This is because I don't
+know the parameters that were used for the SVM used in the paper.
+
+### Experiment Design
+
+
+Parameter|Value
+:--------|-----
+
+#### Input
+
+#### Output
+
+#### Running the Experiment
+
+File List:
+
+Directory List:
+
+#### EXPERIMENT SCRIPT
+```
+```
+
+### Results/Analysis
+
+### Conclusions/Next Questions
+
+[Return to top](#0000)
+
+----------------------------------------------------------------------------------------------------
+## TITLE <a name="0007"></a>
 DATE
 
 ### Question

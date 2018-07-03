@@ -1,5 +1,3 @@
-#-----------------------------------------------------------------------------+
-# 
 # Title: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
@@ -17,8 +15,11 @@ import numpy as np
 from scipy.special import expit
 from sklearn import svm
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import mean_squared_error
 from sklearn.metrics import confusion_matrix
 from cpso_particle import COMB_Particle
+
+import pprint as pp
 
 class COMB_Swarm:
 
@@ -330,7 +331,7 @@ class COMB_Swarm:
         ------
         None
         """
-        if not init_flag:
+        if not self.init_flag:
             print('ERROR: initialize_particles() must be called '
                 + 'before execute_search()')
             return
@@ -518,6 +519,8 @@ class COMB_Swarm:
 
             low_number: The number of features in the subset. Fewer is better.
 
+            overfitting: The degree of overfitting. Less is better.
+
         Example terms parameter:
 
             terms = {
@@ -555,14 +558,14 @@ class COMB_Swarm:
         if not terms:
             print('Error - COMB_Swarm.eval_fitness: '
                 + 'You must include at least one term.')
-        # Weights should sum to 1, but floating point arithemetic is tricky
+        # Weights should sum to 1, but floating point arithmetic is tricky
         if (sum(terms.values()) > 1.0001
           or sum(terms.values()) < 0.9999):
             print('Error - COMB_Swarm.eval_fitness: '
                 + 'Weight factors must sum to 1.0')
             return
         valid_terms = {'accuracy', 'sensitivity', 'specificity',
-                       'low_number'}
+                       'low_number', 'overfitting'}
         for key, value in terms.items():
             if key not in valid_terms:
                 print('Error - COMB_Swarm.eval_fitness: '
@@ -596,5 +599,23 @@ class COMB_Swarm:
         if 'low_number' in terms.keys():
             fitness += (((self.ndim-np.count_nonzero(b)) / self.ndim)
                      * terms['low_number'])
+        if 'overfitting' in terms.keys():
+            # COST
+            kf = StratifiedKFold(n_splits=5)
+            scores = []
+            for train_index, test_index in kf.split(self.data, self.target):
+                self.clf.fit(self.data[train_index][:, b], self.target[train_index])
+                y_pred = self.clf.predict(self.data[test_index][:, b])
+                scores.append(mean_squared_error(self.target[test_index],
+                                                 y_pred))
+            scores = np.array(scores)
+            # Binary {0, 1} classification so the MSE will never be outside
+            # the interval [0.0, 1^2] = [0.0, 1.0] which is what I need
+            # for this fitness function.
+            fitness -= scores.mean()
+            # print('Mean  : {}\nStdDev: {}\nScores (MSE):'.format(scores.mean(),
+            #                                                      scores.std()))
+            # pp.pprint(scores)
+            # print()
 
         return fitness, (accuracy, sensitivity, specificity)
