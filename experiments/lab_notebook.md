@@ -16,7 +16,7 @@ Experiment|Date|Summary|Completed
 [Mean Particle Velocity](#0003)|06/26/2018|Characterizing particle velocities.|Yes
 [Mean Particle Velocity - The Sequel](#0004)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
 [Swarm Convergence](#0005)|06/27/2018|Checking for convergence over time|Yes
-[Verifying Rational Polypharmacology](#0006)|07/3/2018|Running an SVM on the returned informative kinases from the "Rational Polypharmacology" paper.|No
+[Verifying Rational Polypharmacology](#0006)|07/3/2018|Running an SVM on the returned informative kinases from the "Rational Polypharmacology" paper.|Yes
 
 ----------------------------------------------------------------------------------------------------
 
