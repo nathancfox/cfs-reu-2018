@@ -1,0 +1,359 @@
+
+
+####################################################################################################
+#
+# Verifying Rational Polypharmacology
+# Nathan Fox
+# 7/3/2018 16:5
+#
+####################################################################################################
+
+
+15 Polypharmacologically Linked Groups of Kinases (linked_groups.csv)
+---------------------------------------------------------------------
+    [ ['TNK2'],
+      ['ROCK1', 'ROCK2'],
+      ['PIK3CB', 'PIK3CD'],
+      ['PRKCA', 'PRKCB', 'PRKCG'],
+      ['CDK1', 'CDK2', 'CDK3', 'CDK4', 'CDK6', 'CDK5'],
+      ['RPS6KA4', 'RPS6KA5', 'RPS6KA2', 'RPS6KA1', 'RPS6KA1', 'RPS6KA3', 'RPS6KA6'],
+      ['PRKG1', 'PRKG2'],
+      ['MAPKAPK3', 'MAPKAPK2'],
+      ['PRKX', 'PRKY'],
+      ['MAPK14', 'MAPK11', 'MAPK13', 'MAPK12'],
+      ['MAP4K4', 'TNIK', 'MINK1'],
+      ['MUSK'],
+      ['FGR', 'FYN', 'SRC', 'YES1', 'BLK', 'HCK', 'LCK', 'LYN'],
+      ['EGFR', 'ERBB2', 'ERBB4'],
+      ['FLT4']]
+
+Cohort 1
+-------
+    {'MAPK14', 'TNK2', 'ROCK2', 'CDK5', 'PIK3CD', 'PRKG1', 'PRKCG', 'PRKX', 'RPS6KA4', 'MAPKAPK3'}
+
+Cohort 2:
+-------
+    { 'CDK1',
+      'EGFR',
+      'FGR',
+      'FLT4',
+      'MAP4K4',
+      'MAPK14',
+      'MAPKAPK3',
+      'MUSK',
+      'PIK3CB',
+      'PRKCA',
+      'PRKG1',
+      'PRKX',
+      'ROCK1',
+      'RPS6KA4',
+      'TNK2'}
+
+Cohort 3:
+-------
+Randomly generated stratified set of 15 from the 15 groups in linked_groups.csv.
+
+====================================================================================================
+||  Results
+====================================================================================================
+
+Kernel 'linear'
+-------------------
+
+    Single Split
+    ============
+
+        Cohort 0:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 1:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+    10-Fold CV
+    ============
+
+        Cohort 0:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 1:
+            Accuracy    : 0.7228945868945869
+            Sensitivity : 0.014285714285714285
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+
+Kernel 'rbf'
+-------------------
+
+    Single Split
+    ============
+
+        Cohort 0:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 1:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.734375
+            Sensitivity: 0.05555555555555555
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.734375
+            Sensitivity: 0.05555555555555555
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+    10-Fold CV
+    ============
+
+        Cohort 0:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 1:
+            Accuracy    : 0.7228945868945869
+            Sensitivity : 0.014285714285714285
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7265982905982905
+            Sensitivity : 0.026785714285714284
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7268945868945869
+            Sensitivity : 0.02857142857142857
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7308945868945869
+            Sensitivity : 0.05535714285714286
+            Specificity : 0.9947368421052631
+
+
+Kernel 'poly'
+-------------------
+
+    Single Split
+    ============
+
+        Cohort 0:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 1:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+    10-Fold CV
+    ============
+
+        Cohort 0:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 1:
+            Accuracy    : 0.7228945868945869
+            Sensitivity : 0.014285714285714285
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7225982905982905
+            Sensitivity : 0.0125
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7265982905982905
+            Sensitivity : 0.026785714285714284
+            Specificity : 1.0
+
+
+Kernel 'sigmoid'
+-------------------
+
+    Single Split
+    ============
+
+        Cohort 0:
+            Accuracy: 0.703125
+            Sensitivity: 0.0
+            Specificity: 0.9782608695652174
+
+        Cohort 1:
+            Accuracy: 0.703125
+            Sensitivity: 0.0
+            Specificity: 0.9782608695652174
+
+        Cohort 2:
+            Accuracy: 0.734375
+            Sensitivity: 0.05555555555555555
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+    10-Fold CV
+    ============
+
+        Cohort 0:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 1:
+            Accuracy    : 0.7228945868945869
+            Sensitivity : 0.014285714285714285
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7303019943019942
+            Sensitivity : 0.039285714285714285
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+
+Kernel 'precomputed'
+-------------------
+
+    Single Split
+    ============
+
+        Cohort 0:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 1:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.734375
+            Sensitivity: 0.05555555555555555
+            Specificity: 1.0
+
+        Cohort 2:
+            Accuracy: 0.71875
+            Sensitivity: 0.0
+            Specificity: 1.0
+
+    10-Fold CV
+    ============
+
+        Cohort 0:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+        Cohort 1:
+            Accuracy    : 0.7228945868945869
+            Sensitivity : 0.014285714285714285
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7305982905982906
+            Sensitivity : 0.04107142857142857
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7225982905982905
+            Sensitivity : 0.0125
+            Specificity : 1.0
+
+        Cohort 2:
+            Accuracy    : 0.7188945868945869
+            Sensitivity : 0.0
+            Specificity : 1.0
+
+
