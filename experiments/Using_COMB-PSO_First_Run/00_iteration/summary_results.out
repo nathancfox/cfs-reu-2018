@@ -1,0 +1,47 @@
+
+
+################################################################################
+#
+# Using COMB-PSO - First Run: Iteration 00
+# Nathan Fox
+# 7/5/2018 12:17
+#
+################################################################################
+
+
+Parameters
+----------
+  Number of Particles (npart)              : 10
+  Acceleration Constant 1 (c1)             : 2.10
+  Acceleration Constant 2 (c2)             : 2.10
+  Acceleration Constant 3 (c3)             : 2.10
+  Available Features (ndim)                : 190
+  Fitness Function Terms and Weights       : {
+                                               accuracy     : 0.1
+                                               sensitivity  : 0.6
+                                               low_number   : 0.2
+                                               overfitting  : 0.1
+                                             }
+  Position Bounds (x_bounds)               : (-6.0, 6.0)
+  Velocity Bounds (v_bounds)               : (-3.0, 1.5)
+  Inertia Bounds (w_bounds)                : (0.4, 0.9)
+  End Time (t_bounds[1])                   : 20
+
+  feature data : data/data.csv
+  target data  : data/target.csv
+
+Results
+-------
+
+  Archived Best
+  =============
+  Number of Features                       : 15
+  Fitness (a_fitness                       : 0.0000
+  Accuracy                                 : 0.0000
+  Sensitivity                              : 0.0000
+  Specificity                              : 0.0000
+
+  Null Subsets                             : 0 / 200 (Occurrences/Total Checks)
+
+Final Re-Check 10-Fold Cross Validation Confusion Matrices:
+

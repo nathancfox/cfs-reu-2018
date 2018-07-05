@@ -10,13 +10,14 @@ Experiment|Date|Summary|Completed
 :---------|----|:------|---------
 [Tuning VBounds](#0001)|06/15/2018|Testing COMB-PSO on kinase inhibitor data with varying vbounds.|Yes
 [Tuning VBounds - Range](#0002)|06/16/2018|Testing COMB-PSO on kinase inhibitor data with a varying vbound range.|Yes
-[Conceptual Brainstorming](#1001)|06/18/2018|Brainstorming and contemplating about the last two experiments.|Yes
-[Polypharm Linkage Hypothesis](#1002)|06/19/2018|Hypothesis about polypharmacologically linked kinases and the results from COMB-PSO.|Yes
-[Even Split Check](#1003)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
-[Mean Particle Velocity](#0003)|06/26/2018|Characterizing particle velocities.|Yes
-[Mean Particle Velocity - The Sequel](#0004)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
-[Swarm Convergence](#0005)|06/27/2018|Checking for convergence over time|Yes
-[Verifying Rational Polypharmacology](#0006)|07/3/2018|Running an SVM on the returned informative kinases from the "Rational Polypharmacology" paper.|Yes
+[Conceptual Brainstorming](#0003)|06/18/2018|Brainstorming and contemplating about the last two experiments.|Yes
+[Polypharm Linkage Hypothesis](#0004)|06/19/2018|Hypothesis about polypharmacologically linked kinases and the results from COMB-PSO.|Yes
+[Even Split Check](#0005)|06/19/2018|Checking to see if Hit/Non-Hit ratio is consistent with training/test splits.|Yes
+[Mean Particle Velocity](#0006)|06/26/2018|Characterizing particle velocities.|Yes
+[Mean Particle Velocity - The Sequel](#0007)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
+[Swarm Convergence](#0008)|06/27/2018|Checking for convergence over time|Yes
+[Verifying Rational Polypharmacology](#0009)|07/03/2018|Running an SVM on the returned informative kinases from the "Rational Polypharmacology" paper.|Yes
+[Using COMB-PSO - First Run](#0010)|07/05/2018|Using the latest version of the cpso suite to to a real run of the algorithm and look at the scores and features returned over multiple runs.|No
 
 ----------------------------------------------------------------------------------------------------
 
@@ -614,7 +615,7 @@ this.
 
 ----------------------------------------------------------------------------------------------------
 
-## Conceptual Brainstorming <a name="1001"></a>
+## Conceptual Brainstorming <a name="0003"></a>
 June 18, 2018
 
 Why did the num_of_features variable have a sigmoid relationship with the moving vbounds in
@@ -669,7 +670,7 @@ my theory on single branch vs intersection nodes.
 
 ----------------------------------------------------------------------------------------------------
 
-## Polypharm Linkage Hypothesis <a name="1002"></a>
+## Polypharm Linkage Hypothesis <a name="0004"></a>
 
 #### Background
 During my parameter testing for COMB-PSO, the three things I have observed are as follows:
@@ -728,7 +729,7 @@ kinases from these two families, but not the same kinases each time.
 
 ----------------------------------------------------------------------------------------------------
 
-## Even Split Check <a name="1003"></a>
+## Even Split Check <a name="0005"></a>
 ### Plan
 Given that during initial parameter testing of vbounds, I saw no relationship between the parameter
 and the test accuracy, I decided to do some quick looking for other sources of predictive power or
@@ -1120,7 +1121,7 @@ vs. training\_accuracy in the same pair plot.
 
 ----------------------------------------------------------------------------------------------------
 
-## Mean Particle Velocity <a name="0003"></a>
+## Mean Particle Velocity <a name="0006"></a>
 June 26, 2018
 
 ### Question
@@ -1251,7 +1252,7 @@ a different approach.
 
 ----------------------------------------------------------------------------------------------------
 
-## Mean Particle Velocity - The Sequel <a name="0004"></a>
+## Mean Particle Velocity - The Sequel <a name="0007"></a>
 June 26, 2018
 
 ### Question
@@ -1413,7 +1414,7 @@ swarm? Perhaps calculating the center of the swarm and sum distance from center?
 
 ----------------------------------------------------------------------------------------------------
 
-## Swarm Convergence <a name="0005"></a>
+## Swarm Convergence <a name="0008"></a>
 June 27, 2018
 
 ### Question
@@ -1466,10 +1467,10 @@ def calc_spread(self, mean=False):
         return np.linalg.norm(positions - center, axis=1).sum()
 ```
 
-I tested this new method in a separate script called test\_calc\_spread.py, located
+I tested this new method in a separate script called `test_calc_spread.py`, located
 in the experiment folder.
 
-Similarly to [Mean Particle Velocity - The Sequel](#0004), I will run this in triplicate.
+Similarly to [Mean Particle Velocity - The Sequel](#0007), I will run this in triplicate.
 
 Parameter|Value
 :--------|-----
@@ -1583,7 +1584,7 @@ I'm satisfied that I refuted my hypothesis and the swarm is definitely convergin
 
 ----------------------------------------------------------------------------------------------------
 
-## Verifying Rational Polypharmacology <a name="0006"></a>
+## Verifying Rational Polypharmacology <a name="0009"></a>
 July 3, 2018
 
 ### Question
@@ -1902,7 +1903,78 @@ feature selection algorithm.
 [Return to top](#0000)
 
 ----------------------------------------------------------------------------------------------------
-## TITLE <a name="0007"></a>
+## Using COMB-PSO - First Run <a name="0010"></a>
+July 5, 2018
+
+### Question
+Does COMB-PSO give meaningful, reliable results when used to select an informative
+feature subset to execute binary categorical classification?
+
+### Hypothesis
+I hypothesize that the COMB-PSO algorithm will return feature subsets of consistent
+size and scoring that has a better accuracy than the full data set. I suspect that the
+returned subsets will also score better in sensitivity, but approximately the same in
+specificity.
+
+### Experiment Design
+I will run the COMB-PSO algorithm on the 190-feature kinase inhibitor dataset 10 times. Each
+iteration will be run with the same parameters, selected from previous testing experience and some
+literature readings. Each iteration will return a feature subset determined to have the highest
+fitness, as well as accuracy, sensitivity, and specificity scores. I will also run a sort of
+"control" where the entire dataset is used to verify that this process produces an equally or
+more informative subset.
+
+Parameter|Value
+:--------|-----
+Number of Particles (npart)|100
+Number of Features (ndim)|190
+Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
+Fitness Terms|accuracy, sensitivity, low_number, overfitting
+Fitness Weights|0.1, 0.6, 0.2, 0.1
+X Bounds (x\_bounds)|(-6.0, 6.0)
+V Bounds (v\_bounds)|(-3.0, 1.5)
+W Bounds (w\_bounds|(0.4, 0.9)
+Time (t\_bounds[1])|200
+GBest Stagnation Limit|3
+
+#### Input
+Data Files:
+
+* Feature Data: `data/data.csv`
+* Target Classifications: `data/target.csv`
+* Feature Label Mapping: `data/feature_labels.csv`
+* Dynamically Generated Scripts: `job_script` in each iteration's directory
+
+#### Output
+
+#### Running the Experiment
+The entire experiment can be run with the command:
+
+`./experiment_script`
+
+This script dynamically creates a directory for each iteration, writes the script for that
+particular iteration, then submits that individual script to be run. Each dynamically created
+script will use `cpso.py` to run a single instance the COMB-PSO algorithm, generating
+several output files, detailed above. The script then manually creates and runs a script
+to execute a "control" iteration that uses the entire feature dataset. The control will
+be run 3 times. I chose to run it 3 times instead of 10 like the COMB-PSO script because there
+is far less stochasticity involved in the control.
+
+Then, I run a custom script called `data_extracter.sh` that iterates all the summary reports
+and extracts the relevant numerical data, then compiled in a new .csv file called ``.
+
+#### EXPERIMENT SCRIPT
+```
+```
+
+### Results/Analysis
+
+### Conclusions/Next Questions
+
+[Return to top](#0000)
+
+----------------------------------------------------------------------------------------------------
+## TITLE <a name="0011"></a>
 DATE
 
 ### Question
