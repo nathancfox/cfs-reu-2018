@@ -178,20 +178,20 @@ for vmin in np.arange(-6.0, 2.1, 0.2):
 #### Plots
 ##### Histograms of Numerical Dependent Variables
 
-![IMAGE: Histogram - Number of Features](cfs_notebook_files/Tuning_VBounds_HIST_Num_of_Features.svg)
-![IMAGE: Histogram - a\_fitness](cfs_notebook_files/Tuning_VBounds_HIST_a_fitness.svg)
-![IMAGE: Histogram - Training Accuracy](cfs_notebook_files/Tuning_VBounds_HIST_a_score.svg)
-![IMAGE: Histogram - Test Accuracy](cfs_notebook_files/Tuning_VBounds_HIST_test_a_score.svg)
+![IMAGE: Histogram - Number of Features](lab_notebook_files/Tuning_VBounds_HIST_Num_of_Features.svg)
+![IMAGE: Histogram - a\_fitness](lab_notebook_files/Tuning_VBounds_HIST_a_fitness.svg)
+![IMAGE: Histogram - Training Accuracy](lab_notebook_files/Tuning_VBounds_HIST_a_score.svg)
+![IMAGE: Histogram - Test Accuracy](lab_notebook_files/Tuning_VBounds_HIST_test_a_score.svg)
 
 ##### Pair Plot of all Relevant Variables
-![IMAGE: Histogram - Pair Plot](cfs_notebook_files/Tuning_VBounds_pairplot.svg)
+![IMAGE: Histogram - Pair Plot](lab_notebook_files/Tuning_VBounds_pairplot.svg)
 
 ##### Scatter Plots of Interest
 
-![IMAGE: Scatter - vmin vs. Number of Features](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_num.svg)
-![IMAGE: Scatter - vmin vs. Fitness Score](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_afit.svg)
-![IMAGE: Scatter - vmin vs. Training Accuracy](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_train_score.svg)
-![IMAGE: Scatter - vmin vs. Test Accuracy](cfs_notebook_files/Tuning_VBounds_SCAT_vmin_test_score.svg)
+![IMAGE: Scatter - vmin vs. Number of Features](lab_notebook_files/Tuning_VBounds_SCAT_vmin_num.svg)
+![IMAGE: Scatter - vmin vs. Fitness Score](lab_notebook_files/Tuning_VBounds_SCAT_vmin_afit.svg)
+![IMAGE: Scatter - vmin vs. Training Accuracy](lab_notebook_files/Tuning_VBounds_SCAT_vmin_train_score.svg)
+![IMAGE: Scatter - vmin vs. Test Accuracy](lab_notebook_files/Tuning_VBounds_SCAT_vmin_test_score.svg)
 
 The two most important plots are Figures 1 and 4. There is an extremely strong sigmoid relationship
 between the location of vbounds (the center) and the number of features included in the final
@@ -562,28 +562,28 @@ notebook in the analysis/ folder for each cohort.
 
 #### Center = -4.0
 
-![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-4.0_pairplot.svg)
-![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-4.0_pearson.png)
+![IMAGE: Histogram/Pair Plot](lab_notebook_files/Tuning_VBounds_Range_vcenter_-4.0_pairplot.svg)
+![IMAGE: Pearson Correlations](lab_notebook_files/Tuning_VBounds_Range_vcenter_-4.0_pearson.png)
 
 #### Center = -2.0
 
-![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-2.0_pairplot.svg)
-![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_-2.0_pearson.png)
+![IMAGE: Histogram/Pair Plot](lab_notebook_files/Tuning_VBounds_Range_vcenter_-2.0_pairplot.svg)
+![IMAGE: Pearson Correlations](lab_notebook_files/Tuning_VBounds_Range_vcenter_-2.0_pearson.png)
 
 #### Center = 0.0
 
-![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_0.0_pairplot.svg)
-![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_0.0_pearson.png)
+![IMAGE: Histogram/Pair Plot](lab_notebook_files/Tuning_VBounds_Range_vcenter_0.0_pairplot.svg)
+![IMAGE: Pearson Correlations](lab_notebook_files/Tuning_VBounds_Range_vcenter_0.0_pearson.png)
 
 #### Center = +2.0
 
-![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+2.0_pairplot.svg)
-![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+2.0_pearson.png)
+![IMAGE: Histogram/Pair Plot](lab_notebook_files/Tuning_VBounds_Range_vcenter_+2.0_pairplot.svg)
+![IMAGE: Pearson Correlations](lab_notebook_files/Tuning_VBounds_Range_vcenter_+2.0_pearson.png)
 
 #### Center = +4.0
 
-![IMAGE: Histogram/Pair Plot](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+4.0_pairplot.svg)
-![IMAGE: Pearson Correlations](cfs_notebook_files/Tuning_VBounds_Range_vcenter_+4.0_pearson.png)
+![IMAGE: Histogram/Pair Plot](lab_notebook_files/Tuning_VBounds_Range_vcenter_+4.0_pairplot.svg)
+![IMAGE: Pearson Correlations](lab_notebook_files/Tuning_VBounds_Range_vcenter_+4.0_pearson.png)
 
 ----------------------------------------------------------------------------------------------------
 
@@ -999,28 +999,28 @@ index  vcenter  vrange  vmin  vmax  num_of_features  a_fitness  training_score  
 
 First I looked at the relationship between the hit/total labels ratio and the ultimate test accuracy.
 
-![IMAGE: Scatter Plot - Test Score vs. Ratio](cfs_notebook_files/Even_Split_Check_SCAT_test_score_ratio.svg)
+![IMAGE: Scatter Plot - Test Score vs. Ratio](lab_notebook_files/Even_Split_Check_SCAT_test_score_ratio.svg)
 
 Next, I looked at the same plot, but with training accuracy.
 
-![IMAGE: Scatter Plot - Training Score vs. Ratio](cfs_notebook_files/Even_Split_Check_SCAT_train_score_ratio.svg)
+![IMAGE: Scatter Plot - Training Score vs. Ratio](lab_notebook_files/Even_Split_Check_SCAT_train_score_ratio.svg)
 
 And test accuracy vs. training accuracy.
 
-![IMAGE: Scatter Plot - Training Score vs. Test Score](cfs_notebook_files/Even_Split_Check_SCAT_train_score_test_score.svg)
+![IMAGE: Scatter Plot - Training Score vs. Test Score](lab_notebook_files/Even_Split_Check_SCAT_train_score_test_score.svg)
 
 I saw that bizarre subset of points that draws a perfect line?? What is that? That has to be an
 artifact of the algorithm right? I subsetted the dataset for where the training score < 0.76
 to grab that unusual subset. I then plotted test score vs. ratio for just this subset. Sure enough.
 
-![IMAGE: Scatter Plot - SUBSET - Test Score vs. Ratio](cfs_notebook_files/Even_Split_Check_SCAT_SUBSET_test_score_ratio.svg)
+![IMAGE: Scatter Plot - SUBSET - Test Score vs. Ratio](lab_notebook_files/Even_Split_Check_SCAT_SUBSET_test_score_ratio.svg)
 
 If you go back up to the first scatter plot, you can see that line in the noise. I looked at the
 actual subsetted dataframe and noticed that this subset is perfectly the second half of the data.
 In other words, this is the data where the vbounds range was more positive than negative. This
 seems like too much of a coincidence.
 
-![IMAGE: Subsetted DataFrame - training\_score \< 0.76](cfs_notebook_files/Even_Split_Check_Subsetted.png)
+![IMAGE: Subsetted DataFrame - training\_score \< 0.76](lab_notebook_files/Even_Split_Check_Subsetted.png)
 
 Comparison|Pearson Correlation
 ----------|-------------------
@@ -1049,11 +1049,11 @@ vcenter = -2.0. This dataset was about half as large.
 
 Again, I first looked at Ratio vs. Test Score.
 
-![IMAGE: Scatter Plot - Test Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_test_score_ratio.svg)
+![IMAGE: Scatter Plot - Test Score vs. Ratio](lab_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_test_score_ratio.svg)
 
 Then Ratio vs. Training Score
 
-![IMAGE: Scatter Plot - Training Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_train_score_ratio.svg)
+![IMAGE: Scatter Plot - Training Score vs. Ratio](lab_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_train_score_ratio.svg)
 
 Curiously, I did not see anything obviously linear. However, when I decided to subset for
 vcenter > 0.0, I realized that this dataset is guaranteed by design for vcenter = -2.0.
@@ -1061,7 +1061,7 @@ I compared test and training score, expecting to find nothhing, however this loo
 like what I saw early. I checked the Pearson correlation coefficients, however and the results
 were not nothing.
 
-![IMAGE: Scatter Plot - Test Score vs. Training Score](cfs_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_train_score_test_score.svg)
+![IMAGE: Scatter Plot - Test Score vs. Training Score](lab_notebook_files/Even_Split_Check_vcenter_-2.0_SCAT_train_score_test_score.svg)
 
 Comparison|Pearson Correlation
 ----------|-------------------
@@ -1074,11 +1074,11 @@ TEST vs. TRAIN|-0.6958
 Again, I'm repeating the analysis with a different cohort. This one, I expect to see results
 similar to Tuning VBounds because here, the center is guaranteed to be greater than 0.
 
-![IMAGE: Scatter Plot - Test Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_test_score_ratio.svg)
+![IMAGE: Scatter Plot - Test Score vs. Ratio](lab_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_test_score_ratio.svg)
 
-![IMAGE: Scatter Plot - Training Score vs. Ratio](cfs_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_train_score_ratio.svg)
+![IMAGE: Scatter Plot - Training Score vs. Ratio](lab_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_train_score_ratio.svg)
 
-![IMAGE: Scatter Plot - Test Score vs. Training Score](cfs_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_train_score_test_score.svg)
+![IMAGE: Scatter Plot - Test Score vs. Training Score](lab_notebook_files/Even_Split_Check_vcenter_+2.0_SCAT_train_score_test_score.svg)
 
 Comparison|Pearson Correlation
 ----------|-------------------
@@ -1236,9 +1236,9 @@ I plotted my results in a full graph, and then a time subset. The first graph is
 all 100 particles over time. The y-axis shows the scalar mean of their continuous velocity
 vectors at each time step. The second graph shows the same data, but only for t = 0 to t = 7.
 
-![IMAGE: Mean Velocity Over Time FULL](cfs_notebook_files/Mean_Particle_Velocity_PLOT_Full.png)
+![IMAGE: Mean Velocity Over Time FULL](lab_notebook_files/Mean_Particle_Velocity_PLOT_Full.png)
 
-![IMAGE: Mean Velocity Over Time t = 7](cfs_notebook_files/Mean_Particle_Velocity_PLOT_t_7.png)
+![IMAGE: Mean Velocity Over Time t = 7](lab_notebook_files/Mean_Particle_Velocity_PLOT_t_7.png)
 
 ### Conclusions/Next Questions
 I can clearly see that all 100 particles are exhibiting the same behavior. The problem is that
@@ -1369,16 +1369,16 @@ First, I plotted all 100 particles for "Velocity Extremeness" over time, to get 
 variance in behavior. Are they all doing the same thing? Any clustering? Outliers? This of course
 produced an unreadable graph, but that was the point.
 
-![IMAGE: Velocity Extremeness of Full Swarm](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Full.png)
+![IMAGE: Velocity Extremeness of Full Swarm](lab_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Full.png)
 
 Next, I plotted the same data, but for the first 3 particles. Because each particle's initial
 position/velocity is random, it was unnecessary to choose a random sample.
 
-![IMAGE: Velocity Extremeness of Three Particles](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Three.png)
+![IMAGE: Velocity Extremeness of Three Particles](lab_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Three.png)
 
 This was still hard to read, so I also plotted the path of just one particle.
 
-![IMAGE: Velocity Extremeness of One Particle](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_One.png)
+![IMAGE: Velocity Extremeness of One Particle](lab_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_One.png)
 
 ### Conclusions/Next Questions
 From these plots, it's apparent that the normal behavior for a particle under these conditions
@@ -1406,7 +1406,7 @@ this report can only show me if the swarm if failing to find a better location, 
 are actually converging. Perhaps I can ask Hassan. Is there a way to calculate "spread" of a
 swarm? Perhaps calculating the center of the swarm and sum distance from center?
 
-![IMAGE: Fitness/Accuracy for gbest/abest](cfs_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Fitness_Score_AG.svg)
+![IMAGE: Fitness/Accuracy for gbest/abest](lab_notebook_files/Mean_Particle_Velocity_Sequel_PLOT_Fitness_Score_AG.svg)
 
 
 [Return to top](#0000)
@@ -1569,9 +1569,9 @@ for i in range(3):
 I plotted both the Sum of Particle Distances from the Center for the swarm at each time point
 and the Mean Particle Distance for the swarm at each time point.
 
-![IMAGE: Plot - Sum of Distances](cfs_notebook_files/Swarm_Convergence_PLOT_Sum_Distance.svg)
+![IMAGE: Plot - Sum of Distances](lab_notebook_files/Swarm_Convergence_PLOT_Sum_Distance.svg)
 
-![IMAGE: Plot - Mean Distance](cfs_notebook_files/Swarm_Convergence_PLOT_Mean_Distance.svg)
+![IMAGE: Plot - Mean Distance](lab_notebook_files/Swarm_Convergence_PLOT_Mean_Distance.svg)
 
 ### Conclusions/Next Questions
 
@@ -1605,7 +1605,7 @@ Source Paper: doi: 10.1021/acschembio.5b00289
 The following are the 15 polypharmacologically linked groups identified by the authors
 of the Rational Polypharmacology paper.
 
-![IMAGE: Rational Polypharmacology - Table 1](cfs_notebook_files/VERIFYING_RATIONAL_POLYPHARMACOLOGY_Table_One.png)
+![IMAGE: Rational Polypharmacology - Table 1](lab_notebook_files/VERIFYING_RATIONAL_POLYPHARMACOLOGY_Table_One.png)
 
 #### Training Subset Cohorts
 
