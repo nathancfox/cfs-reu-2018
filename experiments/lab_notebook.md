@@ -2440,7 +2440,7 @@ for i in range(3):
 ### Results/Analysis
 **Controls**
 
-           | Control 1 | Control 2 | Control 3
+ Metric    | Control 1 | Control 2 | Control 3
 :----------|-----------|-----------|-----------
 Accuracy   | 0.77027   | 0.77027   | 0.77027
 Sensitivity| 0.40357   | 0.40357   | 0.40357
