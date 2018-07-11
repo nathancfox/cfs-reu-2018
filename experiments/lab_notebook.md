@@ -2437,10 +2437,50 @@ for i in range(3):
     # os.system('chmod 764 {}/job_script'.format(filename))
     # os.system('{}/job_script'.format(filename))
 ```
-
 ### Results/Analysis
+**Controls**
+
+           | Control 1 | Control 2 | Control 3
+:----------|-----------|-----------|-----------
+Accuracy   | 0.77027   | 0.77027   | 0.77027
+Sensitivity| 0.40357   | 0.40357   | 0.40357
+Specificity| 0.91374   | 0.91374   | 0.91374
+
+In the 10 iterations, these are the 15 groups listed in "Rational Polypharmacology", how many
+of the reported kinases (in all iterations combined) fell in each group, and then the counts
+normalized for group size.
+
+Group #|Kinases |Counts |Normalized
+-------|:-------|-------|:---------
+0      |TNK2|75|0.5208
+1      |ROCK1,ROCK2|2|1.0000
+2      |PIK3CB,PIK3CD|1|0.5000
+3      |PRKCA,PRKCB,PRKCG|0|0.0000
+4      |CDK1,CDK2,CDK3,CDK4,CDK6,CDK5|3|0.5000
+5      |RPS6KA4,RPS6KA5,RPS6KA2,RPS6KA1,RPS6KA1,RPS6KA3,RPS6KA6|3|0.5000
+6      |PRKG1,PRKG2|2|1.0000
+7      |MAPKAPK3,MAPKAPK2|2|1.0000
+8      |PRKX,PRKY|0|0.0000
+9      |MAPK14,MAPK11,MAPK13,MAPK12|4|1.0000
+10     |MAP4K4,TNIK,MINK1|1|0.3333
+11     |MUSK|1|1.0000
+12     |FGR,FYN,SRC,YES1,BLK,HCK,LCK,LYN|6|0.7500
+13     |EGFR,ERBB2,ERBB4|2|0.6667
+14     |FLT4|1|1.0000
+
 
 ### Conclusions/Next Questions
+Based on the consistency of the controls, I am confident that this classifier produces consistent
+results, and can be assumed to work equivalently across multiple instances.
+
+Looking at the confusion matrices for the final recheck in `00_iteration/summary_report.out`,
+I note that I need to be careful when interpreting score percentages. These percentages are on
+a continuous scale, but the data that they represent is small in population size and discrete.
+For example: In this 10-fold Cross Validation, the 256 point dataset is only 30% Hit (Label 1).
+In a 10-fold CV, this means that there are only 7 or 8 datapoints that are Hits. Thus, for the ones
+with 7 Hits in the test data, the only possible reports for sensitivity are: [0.0, 0.1429, 0.2857,
+0.4286, 0.5714, 0.7143, 0.8571, 1.0]. It is difficult to see small amounts of progress because it
+might not break the results into the next "bin".
 
 ----------------------------------------------------------------------------------------------------
 ## TITLE <a name="0013"></a>
