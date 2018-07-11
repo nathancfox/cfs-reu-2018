@@ -2452,7 +2452,6 @@ normalized for group size.
 
 Group #|Kinases |Counts |Normalized
 -------|:-------|-------|:---------
-None   |Everything Except Kinases Below|75|0.5208
 0      |TNK2|0|0.0000
 1      |ROCK1, ROCK2|2|1.0000
 2      |PIK3CB, PIK3CD|1|0.5000
@@ -2468,8 +2467,34 @@ None   |Everything Except Kinases Below|75|0.5208
 12     |FGR, FYN, SRC, YES1, BLK, HCK, LCK, LYN|6|0.7500
 13     |EGFR, ERBB2, ERBB4|2|0.6667
 14     |FLT4|1|1.0000
+None of the Above  |Everything Except Kinases Below|75|0.5208
 
+**Scores**
 
+Score |Mean  |Standard Deviation
+:-----|------|------------------
+Number of Features|17.9|6.657
+Fitness|0.7178|0.02199
+Accuracy|0.8164|0.02199
+Sensitivity|0.5836|0.03214
+Specificity|0.9067|0.03772
+
+There are 0 kinases in the 75 None of the Above that occur more than once. I'll call this noise.
+
+These kinases appear more than 2 times out of 10 and are not in any of the 15 Linked Groups
+in "Rational Polypharmacology.":
+
+Kinase|Count
+------|-----
+SIK2|6
+TEC|4
+TTK|4
+DYRK1B|4
+FLT3|3
+EPHB3|3
+PI4KB|3
+ABL1|3
+CHUK|3
 ### Conclusions/Next Questions
 Based on the consistency of the controls, I am confident that this classifier produces consistent
 results, and can be assumed to work equivalently across multiple instances.
@@ -2482,6 +2507,22 @@ In a 10-fold CV, this means that there are only 7 or 8 datapoints that are Hits.
 with 7 Hits in the test data, the only possible reports for sensitivity are: [0.0, 0.1429, 0.2857,
 0.4286, 0.5714, 0.7143, 0.8571, 1.0]. It is difficult to see small amounts of progress because it
 might not break the results into the next "bin".
+
+Things to note from the Linked Groups Table:
+
+1. Groups 0 and 8 are unrepresented: {TNK2} and {PRKX, PRKY}.
+2. All the groups except Groups 0, 8, and 10 are approximately equal to or greater than the
+   normalized score of the None of the Above group.
+
+Things to note from the Scores Table:
+
+1. Except for "Number of Features", the rest of the scores have a tight spread and scores
+   approximately equal to or better than the control numbers.
+
+Future Thoughts:
+
+* I want to run 100 iterations and identify the most commonly returned kinases, then construct
+  a subset with those kinases and test classification score.
 
 ----------------------------------------------------------------------------------------------------
 ## TITLE <a name="0013"></a>
