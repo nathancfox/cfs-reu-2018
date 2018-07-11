@@ -226,24 +226,23 @@ class COMB_Swarm:
         self.v_bounds = v_bounds
         self.w_bounds = w_bounds
         self.t_bounds = t_bounds
-        # Placeholders
+
         self.t = 0
         self.all_false_counter = 0
-        self.gbest = np.zeros(self.ndim)
+        # Using -1 as placeholders to throw errors if they are not updated.
+        self.gbest = np.zeros(self.ndim) - 1
         self.gbest_counter = 0
         self.stagn_limit = stagn_limit
-        self.gbinary = np.zeros(self.ndim)
-        for i in range(15):
-            self.gbinary[i] = 1
-        self.g_fitness = 0.0
-        self.g_score = (0.0, 0.0, 0.0)
-        self.abest = np.zeros(self.ndim)
-        self.abinary = np.array(['This', 'is', 'a', 'test'])
-        self.a_fitness = 0.0
-        self.a_score = (0.0, 0.0, 0.0)
+        self.gbinary = np.zeros(self.ndim) - 1
+        self.g_fitness = -1.0
+        self.g_score = (-1.0, -1.0, -1.0)
+        self.abest = np.zeros(self.ndim) - 1
+        self.abinary = np.zeros(self.ndim) - 1
+        self.a_fitness = -1.0
+        self.a_score = (-1.0, -1.0, -1.0)
         self.swarm = []
-        self.p_fitness = np.zeros(self.npart)
-        self.p_scores = np.zeros((self.npart, 3))
+        self.p_fitness = np.zeros(self.npart) - 1
+        self.p_scores = np.zeros((self.npart, 3)) - 1
 
         self.clf = svm.SVC()
         self.data = np.loadtxt(data_path, dtype=np.float64, delimiter=',')
@@ -287,7 +286,6 @@ class COMB_Swarm:
         ------
         None
         """
-        print('INIT TRIP')
         for i in range(self.npart):
             self.swarm.append(COMB_Particle(self.c1, self.c2, self.c3,
                                             self.ndim, self.x_bounds,
@@ -296,7 +294,6 @@ class COMB_Swarm:
             self.p_fitness[i] = f
             self.p_scores[i] = f_score
             if f > self.g_fitness:
-                print('TRIP 2')
                 self.gbest = self.swarm[i].x.copy()
                 self.gbinary = self.swarm[i].b.copy()
                 self.g_fitness = f
@@ -366,7 +363,6 @@ class COMB_Swarm:
                     self.g_score = f_score
                 counter += 1
             if self.g_fitness > self.a_fitness:
-                print('TRIP 3')
                 self.abest = self.gbest.copy()
                 self.abinary = self.gbinary.copy()
                 self.a_fitness = self.g_fitness
@@ -409,9 +405,6 @@ class COMB_Swarm:
         self.g_fitness, self.g_score = self.eval_fitness(self.gbinary, 10,
                                                          self.terms)
         if self.g_fitness > self.a_fitness:
-            print('TRIP 4')
-            print(gbinary)
-            print(abinary)
             self.abest = self.gbest.copy()
             self.abinary = self.gbinary.copy()
             self.a_fitness = self.g_fitness
@@ -621,9 +614,9 @@ class COMB_Swarm:
             # the interval [0.0, 1^2] = [0.0, 1.0] which is what I need
             # for this fitness function.
             fitness -= scores.mean()
-            # print('Mean  : {}\nStdDev: {}\nScores (MSE):'.format(scores.mean(),
-            #                                                      scores.std()))
-            # pp.pprint(scores)
-            # print()
-
+        # Fixes bug where cost terms outweigh other terms and returns a negative
+        # fitness, causing failure to update gbest, gbinary, abest, and abinary
+        # from their placeholder values.
+        if fitness < 0:
+            fitness = 0.0
         return fitness, (accuracy, sensitivity, specificity)

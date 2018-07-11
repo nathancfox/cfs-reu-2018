@@ -1,0 +1,7 @@
+Check particle's difference between time points
+Do it in swaths to eliminate noise
+classifier issues
+rmsd
+lengthen convergence time
+ablate velocity issues
+verify relationship between periodicity of velocity and stagnation limit

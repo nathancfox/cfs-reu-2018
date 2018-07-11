@@ -10,4 +10,4 @@
 #BSUB -N
 #BSUB -u nathanfox@miami.edu
 
-python cpso.py --npart 10 --ndim 190 --constants 2.1 2.1 2.1 --terms accuracy sensitivity low_number overfitting --weights 0.1 0.6 0.2 0.1 --xbounds -6.0 6.0 --vbounds -3.0 1.5 --wbounds 0.4 0.9 --time 20 --gbestlimit 3 --data data/data.csv --target data/target.csv --labels data/feature_labels.csv --expname "Using COMB-PSO - First Run: Iteration 00" --author "Nathan Fox" --outpath 00_iteration --copyscript --initpart
+python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 --terms accuracy sensitivity low_number --weights 0.1 0.7 0.2 --xbounds -6.0 6.0 --vbounds -3.0 1.5 --wbounds 0.4 0.9 --time 200 --gbestlimit 3 --data data/data.csv --target data/target.csv --labels data/feature_labels.csv --expname "Using COMB-PSO - First Run: Iteration 00" --author "Nathan Fox" --outpath 00_iteration --copyscript --initpart

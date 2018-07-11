@@ -193,7 +193,6 @@ s = COMB_Swarm(args.npart, args.c[0], args.c[1], args.c[2], args.ndim, terms,
                args.t_bounds, args.data_path, args.target_path,
                args.init_particles)
 if not args.init_particles:
-    print('TRIP')
     s.initialize_particles()
 s.execute_search()
 # Collect and process data from inside the swarm
@@ -276,9 +275,6 @@ with open(args.output_path+'summary_results.out', 'a') as f:
     f.write('Final Re-Check 10-Fold Cross Validation Confusion Matrices:\n')
     f.write('\n')
     k = 10
-    print(s.init_flag)
-    print(s.gbinary)
-    print(s.abinary)
     rechecked = s.test_classify(s.abinary, k)
     f.write(str(rechecked))
     f.write('\n\n')

@@ -17,7 +17,9 @@ Experiment|Date|Summary|Completed
 [Mean Particle Velocity - The Sequel](#0007)|06/26/2018|Redoing the original Mean Particle Velocity Experiment with a better assay.|Yes
 [Swarm Convergence](#0008)|06/27/2018|Checking for convergence over time|Yes
 [Verifying Rational Polypharmacology](#0009)|07/03/2018|Running an SVM on the returned informative kinases from the "Rational Polypharmacology" paper.|Yes
-[Using COMB-PSO - First Run](#0010)|07/05/2018|Using the latest version of the cpso suite to to a real run of the algorithm and look at the scores and features returned over multiple runs.|No
+[Using COMB-PSO - First Run](#0010)|07/05/2018|Using the latest version of the cpso suite to to a real run of the algorithm and look at the scores and features returned over multiple runs.|Yes
+[Comparing Classifiers](#0011)|07/09/2018|Comparing performance of several different sklearn classifiers.|Yes
+[Using COMB-PSO - KNN](#0012)|07/09/2018|Redoing "Using COMB-PSO - First Run" with a better classifier, KNeighborsClassifier.|No
 
 ----------------------------------------------------------------------------------------------------
 
@@ -1929,8 +1931,8 @@ Parameter|Value
 Number of Particles (npart)|100
 Number of Features (ndim)|190
 Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
-Fitness Terms|accuracy, sensitivity, low_number, overfitting
-Fitness Weights|0.1, 0.6, 0.2, 0.1
+Fitness Terms|accuracy, sensitivity, low\_number
+Fitness Weights|0.1, 0.7, 0.2
 X Bounds (x\_bounds)|(-6.0, 6.0)
 V Bounds (v\_bounds)|(-3.0, 1.5)
 W Bounds (w\_bounds|(0.4, 0.9)
@@ -1946,11 +1948,41 @@ Data Files:
 * Dynamically Generated Scripts: `job_script` in each iteration's directory
 
 #### Output
+Directories in one of two formats:
+
+* `XX_iteration` where XX is the iteration number
+* `control_XX_iteration` where XX is the iteration number of the controls
+
+Each `XX_iteration` directory will have the following files:
+
+* abinary.csv
+* cpso.py
+* error.txt
+* job\_script
+* output.txt
+* summary\_results.out
+* var\_by\_time.csv
+
+`abinary.csv` holds the reported subset. `cpso.py` is a copy of the script that ran this
+iteration of the algorithm. `job_script` is the dynamically generated bash script that ran
+this iteration. `output.txt` and `error.txt` are the redirected stdout and stderr from
+`job_script`. `summary_results.out` and `var_by_time.csv` respectively hold a report of the
+results and a report of certain variables for each time step.
+
+Each `control_XX_iteration` directory will have the following files:
+
+* error.txt
+* job\_script
+* output.txt
+* summary\_results.out
+
+These are the same files as above.
+
 
 #### Running the Experiment
 The entire experiment can be run with the command:
 
-`./experiment_script`
+`python3 experiment_script.py`
 
 This script dynamically creates a directory for each iteration, writes the script for that
 particular iteration, then submits that individual script to be run. Each dynamically created
@@ -1960,8 +1992,363 @@ to execute a "control" iteration that uses the entire feature dataset. The contr
 be run 3 times. I chose to run it 3 times instead of 10 like the COMB-PSO script because there
 is far less stochasticity involved in the control.
 
-Then, I run a custom script called `data_extracter.sh` that iterates all the summary reports
-and extracts the relevant numerical data, then compiled in a new .csv file called ``.
+#### EXPERIMENT SCRIPT
+```
+import os
+import numpy as np
+
+project = 'reu'
+queue = 'general'
+runtime = '1:30'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+for i in range(10):
+    filename = '{:02}_iteration'.format(i)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 '
+              + '--terms accuracy sensitivity low_number '
+              + '--weights 0.1 0.7 0.2 --xbounds -6.0 6.0 '
+              + '--vbounds -3.0 1.5 --wbounds 0.4 0.9 --time 20 --gbestlimit 3 '
+              + '--data data/data.csv --target data/target.csv '
+              + '--labels data/feature_labels.csv '
+              + '--expname "Using COMB-PSO - First Run: Iteration {:02}" '.format(i)
+              + '--author "Nathan Fox" --outpath {} '.format(filename)
+              + '--copyscript --initpart\n')
+    # os.system('bsub < {}/job_script'.format(filename))
+    os.system('chmod 764 {}/job_script'.format(filename))
+    os.system('{}/job_script'.format(filename))
+
+project = 'reu'
+queue = 'general'
+runtime = '0:20'
+processors = '1'
+email = 'nathanfox@miami.edu'
+
+# "Control"
+for i in range(3):
+    filename = 'control_{:02}_iteration'.format(i)
+    os.system('mkdir {}'.format(filename))
+    with open(filename+'/job_script', 'w') as f:
+        f.write('#!/bin/bash\n')
+        f.write('#BSUB -J {}\n'.format(filename))
+        f.write('#BSUB -P {}\n'.format(project))
+        f.write('#BSUB -o {}/output.txt\n'.format(filename))
+        f.write('#BSUB -e {}/error.txt\n'.format(filename))
+        f.write('#BSUB -W {}\n'.format(runtime))
+        f.write('#BSUB -q {}\n'.format(queue))
+        f.write('#BSUB -n {}\n'.format(processors))
+        f.write('#BSUB -B\n')
+        f.write('#BSUB -N\n')
+        f.write('#BSUB -u {}\n'.format(email))
+        f.write('\n')
+        f.write('python control_script.py --outpath {} '.format(filename)
+              + '--data data/data.csv --target data/target.csv '
+              + '--iter {} --author "Nathan Fox"\n'.format(i))
+    # os.system('bsub < {}/job_script'.format(filename))
+    os.system('chmod 764 {}/job_script'.format(filename))
+    os.system('{}/job_script'.format(filename))
+```
+
+### Results/Analysis
+I didn't even bother analyzing the data. Based on a cursory look at the summary reports
+and a meeting I had with Vance, Hassan, and Dr. Bixby, it's clear that this is the wrong
+classifier for this dataset. It shows no signs of learning or differentiating between classes.
+It almost universally assigns 0 or Non-Hit to every datapoint. The only reason that it achieves
+71% accuracy is because 71% of the datapoints are Non-Hits.
+
+### Conclusions/Next Questions
+I need to just redo this experiment with a different, more appropriate classifier.
+
+[Return to top](#0000)
+
+----------------------------------------------------------------------------------------------------
+## Comparing Classifiers <a name="0011"></a>
+July 9, 2018
+
+### Question
+Which sklearn classifiers give the best performance in predictive power?
+This came up because I learned in the last couple experiments that the SVM I have been using
+is essentially assigning one class label to the entire set.
+
+### Hypothesis
+I suspect that almost anything will be better than the SVM I have been using.
+
+### Experiment Design
+I will look at the confusion matrices and mean accuracy/sensitivity/specificity for a 5-fold
+cross validation using the full dataset and one of a set of classifiers available through sklearn,
+using the full feature set to see which ones give acceptable signs of learning. I will then use
+the best one(s) as replacement(s) for the SVM I've been using so far.
+
+#### Input
+
+* data/data.csv
+* data/target.csv
+
+`data.csv` is the unlabelled feature data. `target.csv` is the unlabelled correct classifications.
+#### Output
+
+* results.txt
+
+`results.txt` is a text file containing the results in an organized fashion.
+#### Running the Experiment
+
+`python test_clf.py`
+
+#### EXPERIMENT SCRIPT
+```
+import numpy as np
+import pprint as pp
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import confusion_matrix
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+
+def kfold_test(clf, k, data, target):
+    cm = np.zeros((k, 2, 2))
+    cnt = 0
+    kf = StratifiedKFold(n_splits=k)
+    for train_index, test_index in kf.split(data, target):
+        clf.fit(data[train_index], target[train_index])
+        y_pred = clf.predict(data[test_index])
+        cm[cnt] = confusion_matrix(target[test_index], y_pred)
+        cnt += 1
+    accs = np.zeros(k)
+    sens = np.zeros(k)
+    spec = np.zeros(k)
+    cnt = 0
+    for m in cm:
+        accs[cnt] = (m[0,0]+m[1,1])/m.sum()
+        sens[cnt] = m[1,1]/(m[1,1]+m[1,0])
+        spec[cnt] = m[0,0]/(m[0,0]+m[0,1])
+        cnt += 1
+    accuracy = accs.mean()
+    sensitivity = sens.mean()
+    specificity = spec.mean()
+    return ((accuracy, sensitivity, specificity), cm)
+
+data = np.loadtxt('data/data.csv', delimiter=',')
+target = np.loadtxt('data/target.csv', delimiter=',')
+
+with open('results.txt', 'w') as f:
+    classifiers = [SVC, KNeighborsClassifier, GaussianNB, RandomForestClassifier]
+    for c in classifiers:
+        clf = c()
+        scores, cm = kfold_test(clf, 5, data, target)
+        f.write('{}\n'.format(c) + '-'*80 + '\n')
+        f.write('\n')
+        f.write('    Accuracy    : {}\n'.format(scores[0]))
+        f.write('    Sensitivity : {}\n'.format(scores[1]))
+        f.write('    Specificity : {}\n'.format(scores[2]))
+        f.write('\n')
+        f.write('    Confusion Matrices:\n\n')
+        for line in str(cm).splitlines():
+            f.write('        '+line+'\n')
+        f.write('\n'+'='*80+'\n\n')
+```
+
+### Results/Analysis
+```
+<class 'sklearn.svm.classes.SVC'>
+--------------------------------------------------------------------------------
+
+    Accuracy    : 0.7188114630467572
+    Sensitivity : 0.0
+    Specificity : 1.0
+
+    Confusion Matrices:
+
+        [[[37.  0.]
+          [15.  0.]]
+        
+         [[37.  0.]
+          [15.  0.]]
+        
+         [[37.  0.]
+          [14.  0.]]
+        
+         [[37.  0.]
+          [14.  0.]]
+        
+         [[36.  0.]
+          [14.  0.]]]
+
+================================================================================
+
+<class 'sklearn.neighbors.classification.KNeighborsClassifier'>
+--------------------------------------------------------------------------------
+
+    Accuracy    : 0.7777254901960784
+    Sensitivity : 0.37523809523809526
+    Specificity : 0.934984984984985
+
+    Confusion Matrices:
+
+        [[[31.  6.]
+          [ 9.  6.]]
+        
+         [[36.  1.]
+          [10.  5.]]
+        
+         [[35.  2.]
+          [11.  3.]]
+        
+         [[35.  2.]
+          [ 7.  7.]]
+        
+         [[35.  1.]
+          [ 8.  6.]]]
+
+================================================================================
+
+<class 'sklearn.naive_bayes.GaussianNB'>
+--------------------------------------------------------------------------------
+
+    Accuracy    : 0.7508084464555053
+    Sensitivity : 0.42857142857142855
+    Specificity : 0.8755255255255255
+
+    Confusion Matrices:
+
+        [[[23. 14.]
+          [ 4. 11.]]
+        
+         [[35.  2.]
+          [11.  4.]]
+        
+         [[36.  1.]
+          [14.  0.]]
+        
+         [[32.  5.]
+          [ 6.  8.]]
+        
+         [[35.  1.]
+          [ 6.  8.]]]
+
+================================================================================
+
+<class 'sklearn.ensemble.forest.RandomForestClassifier'>
+--------------------------------------------------------------------------------
+
+    Accuracy    : 0.7581900452488688
+    Sensitivity : 0.27714285714285714
+    Specificity : 0.9459459459459459
+
+    Confusion Matrices:
+
+        [[[30.  7.]
+          [ 8.  7.]]
+        
+         [[37.  0.]
+          [13.  2.]]
+        
+         [[36.  1.]
+          [13.  1.]]
+        
+         [[35.  2.]
+          [ 8.  6.]]
+        
+         [[36.  0.]
+          [10.  4.]]]
+
+================================================================================
+```
+### Conclusions/Next Questions
+Based on these results, I think I am going to try using both a default KNeighbors Classifier
+and a default GaussianNB classifier. Additionally, it is clear to me that I do not really
+understand any of the math or concepts behind these classifiers and that my experimental design
+skills and debugging skills will be handicapped until I do.
+
+[Return to top](#0000)
+
+----------------------------------------------------------------------------------------------------
+## Using COMB-PSO - KNN <a name="0012"></a>
+July 9, 2018
+
+### Question
+Does COMB-PSO give meaningful, reliable results when used to select an informative
+feature subset to execute binary categorical classification?
+
+### Hypothesis
+I hypothesize that the COMB-PSO algorithm will return feature subsets of consistent
+size and scoring that has a better accuracy than the full data set. I suspect that the
+returned subsets will also score better in sensitivity, but approximately the same in
+specificity.
+
+### Experiment Design
+I will run the COMB-PSO algorithm on the 190-feature kinase inhibitor dataset 10 times. Each
+iteration will be run with the same parameters, selected from previous testing experience and some
+literature readings. Each iteration will return a feature subset determined to have the highest
+fitness, as well as accuracy, sensitivity, and specificity scores. I will also run a sort of
+"control" where the entire dataset is used to verify that this process produces an equally or
+more informative subset.
+
+This time, I am abandoning the default sklearn SVM that I have just been blindly using and
+replacing it with a classifier that demonstrated better ability to learn based on the
+[Comparing Classifiers](#0011) experiment. I will be using a default KNeighborsClassifier.
+
+Parameter|Value
+:--------|-----
+Number of Particles (npart)|100
+Number of Features (ndim)|190
+Acceleration Constants (c1, c2, c3)|2.1, 2.1, 2.1
+Fitness Terms|accuracy, sensitivity, low\_number
+Fitness Weights|0.3, 0.5, 0.2
+X Bounds (x\_bounds)|(-6.0, 6.0)
+V Bounds (v\_bounds)|(-3.0, 1.5)
+W Bounds (w\_bounds|(0.4, 0.9)
+Time (t\_bounds[1])|200
+GBest Stagnation Limit|3
+
+#### Input
+Data Files:
+
+* Feature Data: `data/data.csv`
+* Target Classifications: `data/target.csv`
+* Feature Label Mapping: `data/feature_labels.csv`
+* Dynamically Generated Scripts: `job_script` in each iteration's directory
+
+#### Output
+Directories in one of two formats:
+
+* `XX_iteration` where XX is the iteration number
+* `control_XX_iteration` where XX is the iteration number of the controls
+
+Each `XX_iteration` directory will have the following files:
+
+* Files
+
+Each `control_XX_iteration` directory will have the following files:
+
+* Files
+
+#### Running the Experiment
+The entire experiment can be run with the command:
+
+`python3 experiment_script.py`
+
+This script dynamically creates a directory for each iteration, writes the script for that
+particular iteration, then submits that individual script to be run. Each dynamically created
+script will use `cpso.py` to run a single instance the COMB-PSO algorithm, generating
+several output files, detailed above. The script then manually creates and runs a script
+to execute a "control" iteration that uses the entire feature dataset. The control will
+be run 3 times. I chose to run it 3 times instead of 10 like the COMB-PSO script because there
+is far less stochasticity involved in the control.
 
 #### EXPERIMENT SCRIPT
 ```
@@ -1971,10 +2358,8 @@ and extracts the relevant numerical data, then compiled in a new .csv file calle
 
 ### Conclusions/Next Questions
 
-[Return to top](#0000)
-
 ----------------------------------------------------------------------------------------------------
-## TITLE <a name="0011"></a>
+## TITLE <a name="0013"></a>
 DATE
 
 ### Question
