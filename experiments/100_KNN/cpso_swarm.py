@@ -1,4 +1,4 @@
-# Title: COMB-PSO Swarm Class
+: COMB-PSO Swarm Class
 # Author: Nathan Fox <nathanfox@miami.edu>
 # Date Written: June 6, 2018
 # Date Modified: July 2, 2018, by Nathan Fox <nathanfox@miami.edu>

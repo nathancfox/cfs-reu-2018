@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for dir in 0*iteration
+for dir in [^c]*iteration*
 do
 	awk '/Selected Features/{flag=1; next} /Runtime/{flag=0} flag' $dir/summary_results.out | tr -d ' ' > temp.txt
 	sed -i '1d;$d' temp.txt

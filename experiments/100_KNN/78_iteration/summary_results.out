@@ -1,0 +1,157 @@
+
+
+################################################################################
+#
+# 100 Runs of KNN 78
+# Nathan Fox
+# 7/18/2018 0:51
+#
+################################################################################
+
+
+Parameters
+----------
+  Number of Particles (npart)              : 100
+  Acceleration Constant 1 (c1)             : 2.10
+  Acceleration Constant 2 (c2)             : 2.10
+  Acceleration Constant 3 (c3)             : 2.10
+  Available Features (ndim)                : 190
+  Fitness Function Terms and Weights       : {
+                                               accuracy     : 0.3
+                                               sensitivity  : 0.5
+                                               low_number   : 0.2
+                                             }
+  Position Bounds (x_bounds)               : (-6.0, 6.0)
+  Velocity Bounds (v_bounds)               : (-3.0, 1.5)
+  Inertia Bounds (w_bounds)                : (0.4, 0.9)
+  End Time (t_bounds[1])                   : 200
+
+  feature data : data/data.csv
+  target data  : data/target.csv
+
+Results
+-------
+
+  Archived Best
+  =============
+  Number of Features                       : 29
+  Fitness (a_fitness                       : 0.7171
+  Accuracy                                 : 0.7986
+  Sensitivity                              : 0.6161
+  Specificity                              : 0.8702
+
+  Null Subsets                             : 0 / 20000 (Occurrences/Total Checks)
+
+Final Re-Check 10-Fold Cross Validation Confusion Matrices:
+
+[[[ 19.   0.]
+  [  1.   7.]]
+
+ [[ 18.   1.]
+  [  6.   2.]]
+
+ [[ 16.   3.]
+  [  1.   6.]]
+
+ [[ 19.   0.]
+  [  4.   3.]]
+
+ [[ 16.   2.]
+  [  2.   5.]]
+
+ [[ 14.   4.]
+  [  2.   5.]]
+
+ [[ 17.   1.]
+  [  5.   2.]]
+
+ [[ 12.   6.]
+  [  4.   3.]]
+
+ [[ 14.   4.]
+  [  4.   3.]]
+
+ [[ 15.   3.]
+  [  5.   2.]]]
+
+      Accuracy    |  Sensitivity  |  Specificity 
+    ---------------------------------------------
+       0.9630     |    0.8750     |    1.0000    
+       0.7407     |    0.2500     |    0.9474    
+       0.8462     |    0.8571     |    0.8421    
+       0.8462     |    0.4286     |    1.0000    
+       0.8400     |    0.7143     |    0.8889    
+       0.7600     |    0.7143     |    0.7778    
+       0.7600     |    0.2857     |    0.9444    
+       0.6000     |    0.4286     |    0.6667    
+       0.6800     |    0.4286     |    0.7778    
+       0.6800     |    0.2857     |    0.8333    
+    ---------------------------------------------
+                        Means                    
+    ---------------------------------------------
+       0.7716     |    0.5268     |    0.8678    
+
+  Selected Features:
+
+    CDK2
+    CDK6
+    CLK3
+    DYRK1B
+    EGFR
+    EPHB2
+    FES
+    FGR
+    GSK3B
+    INSRR
+    KIT
+    LCK
+    LRRK2
+    MAPKAPK2
+    MET
+    MST1R
+    PDGFRB
+    PHKG1
+    PI4KB
+    PRKACA
+    PRKCB
+    PRKG2
+    ROCK2
+    RPS6KA2
+    SGK1
+    SIK2
+    STK10
+    TNK2
+    TSSK2
+
+  Runtime                                  : 5h 51m 55s
+
+
+Output Files
+------------
+  var_by_time.csv                : This is a csv file that holds the values of
+                                   several variables as they vary over time
+                                   during a single run of the algorithm. Each
+                                   row represents a single time, each column is
+                                   a single variable. The first row is a header
+                                   row and contains labels for all the columns
+                                   except the first one, which is time. It is
+                                   expected that the time column will be used as
+                                   an index in any DataFrames used to process
+                                   this file and so no column label was given.
+
+  abinary.csv                    : This is a csv file that holds the boolean
+                                   vector returned as the optimum feature subset
+                                   by the algorithm. It is a list of values
+                                   where each value is either a 0 or 1. In the
+                                   order given in the original data set or in
+                                   the label vector, if the value is a 0, the
+                                   feature is excluded. If the value is a 1, the
+                                   feature is included.
+
+  cpso_script.py                 : This is the version of cpso.py that was used
+                                   to generate this particular run of the
+                                   algorithm.
+
+--------------------------------------------------------------------------------
+|                              End of Experiment                               |
+--------------------------------------------------------------------------------

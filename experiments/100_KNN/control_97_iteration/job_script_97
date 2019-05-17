@@ -1,0 +1,13 @@
+#!/bin/bash
+#BSUB -J control_97_iteration
+#BSUB -P reu
+#BSUB -o control_97_iteration/output.txt
+#BSUB -e control_97_iteration/error.txt
+#BSUB -W 0:30
+#BSUB -q general
+#BSUB -n 1
+#BSUB -B
+#BSUB -N
+#BSUB -u nathanfox@miami.edu
+
+python control_script.py --outpath control_97_iteration --data data/data.csv --target data/target.csv --iter 97 --author "Nathan Fox"

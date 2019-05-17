@@ -1,0 +1,17 @@
+#!/bin/bash
+
+flag="False"
+for i in ??_report_spread
+do
+	if [ -f $i/output.txt ]; then
+		if [ $(wc -c $i/output.txt | cut -d" " -f1) != "0" ]; then
+			echo "Output in $i/"
+			flag="True"
+		fi
+	else
+		echo "No output.txt for $i/!"
+	fi
+done
+if [ $flag != "True" ]; then
+	echo "No outputs in checked files!"
+fi

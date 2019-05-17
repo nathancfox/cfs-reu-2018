@@ -10,7 +10,7 @@ import datetime
 def kfold_test(clf, k, b, data, target):
     cm = np.zeros((k, 2, 2))
     cnt = 0
-    kf = StratifiedKFold(n_splits=k)
+    kf = StratifiedKFold(n_splits=k, shuffle=True)
     for train_index, test_index in kf.split(data, target):
         clf.fit(data[train_index][:, b], target[train_index])
         y_pred = clf.predict(data[test_index][:, b])

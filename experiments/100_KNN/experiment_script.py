@@ -1,16 +1,25 @@
 import os
+import sys
 import numpy as np
 
 project = 'reu'
 queue = 'general'
-runtime = '1:30'
-processors = '1'
+runtime = '10:00'
+processors = '4'
 email = 'nathanfox@miami.edu'
 
 for i in range(100):
     filename = '{:02}_iteration'.format(i)
-    os.system('mkdir {}'.format(filename))
-    with open(filename+'/job_script', 'w') as f:
+    try:
+        os.mkdir('{}'.format(filename))
+    except FileExistsError:
+        answer = input('Directory {}/ Exists. Overwrite? (y/n): '.format(filename))
+        if answer.lower()[0] == 'y':
+            os.system('rm {}/*'.format(filename))
+        else:
+            print('Exiting...')
+            sys.exit(1)
+    with open(filename+'/job_script_{:02}'.format(i), 'w') as f:
         f.write('#!/bin/bash\n')
         f.write('#BSUB -J {}\n'.format(filename))
         f.write('#BSUB -P {}\n'.format(project))
@@ -32,21 +41,30 @@ for i in range(100):
               + '--expname "100 Runs of KNN {:02}" '.format(i)
               + '--author "Nathan Fox" --outpath {} '.format(filename)
               + '--copyscript --initpart\n')
-    os.system('bsub < {}/job_script'.format(filename))
-    # os.system('chmod 764 {}/job_script'.format(filename))
-    # os.system('{}/job_script'.format(filename))
+    os.system('bsub < {}/job_script_{:02}'.format(filename, i))
+    # os.system('chmod 764 {}/job_script_{:02}'.format(filename, i))
+    # os.system('{}/job_script_{:02} &'.format(filename, i))
+    # print('Running Job {:02}'.format(i))
 
 project = 'reu'
 queue = 'general'
 runtime = '0:30'
 processors = '1'
 email = 'nathanfox@miami.edu'
-
+  
 # "Control"
-for i in range(3):
+for i in range(100):
     filename = 'control_{:02}_iteration'.format(i)
-    os.system('mkdir {}'.format(filename))
-    with open(filename+'/job_script', 'w') as f:
+    try:
+        os.mkdir('{}'.format(filename))
+    except FileExistsError:
+        answer = input('Directory {}/ Exists. Overwrite? (y/n): '.format(filename))
+        if answer.lower()[0] == 'y':
+            os.system('rm {}/*'.format(filename))
+        else:
+            print('Exiting...')
+            sys.exit(1)
+    with open(filename+'/job_script_{:02}'.format(i), 'w') as f:
         f.write('#!/bin/bash\n')
         f.write('#BSUB -J {}\n'.format(filename))
         f.write('#BSUB -P {}\n'.format(project))
@@ -62,6 +80,7 @@ for i in range(3):
         f.write('python control_script.py --outpath {} '.format(filename)
               + '--data data/data.csv --target data/target.csv '
               + '--iter {} --author "Nathan Fox"\n'.format(i))
-    os.system('bsub < {}/job_script'.format(filename))
-    # os.system('chmod 764 {}/job_script'.format(filename))
-    # os.system('{}/job_script'.format(filename))
+    os.system('bsub < {}/job_script_{:02}'.format(filename, i))
+    # os.system('chmod 764 {}/job_script_{:02}'.format(filename, i))
+    # os.system('{}/job_script_{:02} &'.format(filename, i))
+    # print('Running Control {:02}'.format(i))

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+flag="False"
+for i in ??_report_spread
+do
+	if [ -f $i/error.txt ]; then
+		if [ $(wc -c $i/error.txt | cut -d" " -f1) != "0" ]; then
+			echo "Error in $i/"
+			flag="True"
+		fi
+	else
+		echo "No error.txt for $i/!"
+	fi
+done
+if [ $flag != "True" ]; then
+	echo "No errors in checked files!"
+fi

@@ -1,0 +1,13 @@
+#!/bin/bash
+#BSUB -J control_52_iteration
+#BSUB -P reu
+#BSUB -o control_52_iteration/output.txt
+#BSUB -e control_52_iteration/error.txt
+#BSUB -W 0:30
+#BSUB -q general
+#BSUB -n 1
+#BSUB -B
+#BSUB -N
+#BSUB -u nathanfox@miami.edu
+
+python control_script.py --outpath control_52_iteration --data data/data.csv --target data/target.csv --iter 52 --author "Nathan Fox"

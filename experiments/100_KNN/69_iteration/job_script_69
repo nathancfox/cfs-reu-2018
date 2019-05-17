@@ -1,0 +1,13 @@
+#!/bin/bash
+#BSUB -J 69_iteration
+#BSUB -P reu
+#BSUB -o 69_iteration/output.txt
+#BSUB -e 69_iteration/error.txt
+#BSUB -W 10:00
+#BSUB -q general
+#BSUB -n 4
+#BSUB -B
+#BSUB -N
+#BSUB -u nathanfox@miami.edu
+
+python cpso.py --npart 100 --ndim 190 --constants 2.1 2.1 2.1 --terms accuracy sensitivity low_number --weights 0.3 0.5 0.2 --xbounds -6.0 6.0 --vbounds -3.0 1.5 --wbounds 0.4 0.9 --time 200 --gbestlimit 3 --data data/data.csv --target data/target.csv --labels data/feature_labels.csv --expname "100 Runs of KNN 69" --author "Nathan Fox" --outpath 69_iteration --copyscript --initpart
