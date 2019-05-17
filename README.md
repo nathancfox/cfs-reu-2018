@@ -1,8 +1,14 @@
 # Computing for Structure REU - Summer 2018
 
-**Author:** Nathan Fox \<nathanfox@miami.edu\>
+**Author:** Nathan Fox \<nchristopherfox@gmail.com\>
 
 **Initialized:** June 1, 2018
+
+### NOTE: This repository is unmaintained
+This codebase was written for a one-time summer research project and is not
+fully checked or proofed for active use. Some code documentation may be a
+little out of date, and there may be a few bugs. If you are interested in
+using any of this code, I highly recommend you contact me first.
 
 **Mentors:**
 
