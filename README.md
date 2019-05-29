@@ -7,8 +7,12 @@
 ### NOTE: This repository is unmaintained
 This codebase was written for a one-time summer research project and is not
 fully checked or proofed for active use. Some code documentation may be a
-little out of date, and there may be a few bugs. If you are interested in
-using any of this code, I highly recommend you contact me first.
+little out of date, and there may be a few bugs. Additionally, during a backup,
+the last experiment's documentation was lost from the lab notebook file.
+The experiment data and analysis is intact and is called `100_KNN`. Because this
+was a one-time project, I have not gone back and fixed the record, though I can
+if necessary. If you are interested in using any of this code, I highly recommend
+you contact me first.
 
 **Mentors:**
 
@@ -29,5 +33,5 @@ in vitro kinase inhibition profiles.
 
 **eda:** Exploratory analysis of the kinase inhibitor data.
 
-The master branch runs all experiments & analyses in the experiments/ folder.
-The lab notebook can be found in experiments/lab_notebooks/cfs_notebook.md 
+The master branch runs all experiments & analyses in the `experiments/` folder.
+The lab notebook can be found in `experiments/lab_notebook.md`
